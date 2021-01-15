@@ -1,4 +1,4 @@
-function  [C, Hdot, H,info ] = CoriolisMatrix_rotor( model, q, qd, factorFunction)
+function  [C, Hdot, H ] = CoriolisMatrix( model, q, qd, factorFunction)
 
 if nargin == 3
     factorFunction = @(I,v)(factorFunctions(I,v));
@@ -107,15 +107,3 @@ for j = model.NB:-1:1
         end
     end 
 end
-
-
-info.IC = IC;
-info.BC = BC;
-info.Xup = Xup;
-info.v = v;
-if any( model.has_rotor)
-    info.B_rot = B_rotor;
-    info.Xup_rot = Xup_rotor;
-    info.v_rot = v_rotor;
-end
-

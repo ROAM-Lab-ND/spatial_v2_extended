@@ -12,12 +12,20 @@ function  [o1,o2] = plux( i1, i2 )
 % supplied then they are assumed to be E and r, otherwise X.
 
 if nargin == 2				% E,r --> X
-
-  o1 = [ i1, zeros(3); -i1*skew(i2), i1 ];
-
-else					% X --> E,r
-
-  o1 = i1(1:3,1:3);
-  o2 = -skew(o1'*i1(4:6,1:3));
-
+    if all(size(i1) == [3 3])
+        o1 = [ i1, zeros(3); -i1*skew(i2), i1 ];
+    else
+        o1 = [1 0 0 ; i1*[-i2(2) i2(1)]' i1];
+    end
+else
+    X = i1;  % X --> E,r
+    if all(size(X)==[6 6])			% 3D points
+        E = X(1:3,1:3);
+        r = -skew(E'*X(4:6,1:3));
+    else					% 2D points
+        E = X(2:3,2:3);
+        r = [ X(2,3)*X(2,1)+X(3,3)*X(3,1); X(2,3)*X(3,1)-X(3,3)*X(2,1) ];
+    end
+    o1 = E;
+    o2 = r;
 end

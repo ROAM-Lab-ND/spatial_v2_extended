@@ -1,4 +1,4 @@
-function  [H,C,info] = HandC_rotor( model, q, qd, f_ext )
+function  [H,C,info] = HandC( model, q, qd, f_ext )
 
 % HandC  Calculate coefficients of equation of motion
 % [H,C]=HandC(model,q,qd,f_ext)  calculates the coefficients of the

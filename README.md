@@ -10,3 +10,4 @@ New features include:
 * Updated most algorithms (RNEA, ABA, CRBA, etc.) to handle multi-DoF joints (e.g., spherical or floating base) without needing specialized versions of the algorithms ([link](https://github.com/ROAM-Lab-ND/spatial_v2_extended/tree/main/v3/dynamics))
 * Regressor calculation algorithms ([link](https://github.com/ROAM-Lab-ND/spatial_v2_extended/tree/main/v3/regressor))
 * Variety of tools for converting between different representations of orientation ([link](https://github.com/ROAM-Lab-ND/spatial_v2_extended/tree/main/v3/orientation_tools))
+* Partial compatibility for complex-valued input arguments toward support of complex-step derivative comptuations in unit tests.

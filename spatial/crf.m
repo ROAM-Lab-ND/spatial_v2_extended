@@ -7,4 +7,4 @@ function  vcross = crf( v )
 % the return value is a 6x6 matrix.  Otherwise, v is taken to be a planar
 % vector, and the return value is 3x3.
 
-vcross = -crm(v)';
+vcross = -crm(v).';

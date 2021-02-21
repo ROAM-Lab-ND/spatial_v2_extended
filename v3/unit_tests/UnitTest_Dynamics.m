@@ -1,4 +1,4 @@
-% Sanity Check Example for Coriolis Matrix Algorithm
+% Unit tests for dynamics functions
 
 N = 6;
 
@@ -80,6 +80,8 @@ function checkDynamics(model, desc)
     [H_new, ~] = HandC(model, q_new, qd);
     Hdot_finite_difference = (H_new-H)/dt;
     checkValue('Hdot', Hdot , Hdot_finite_difference, 1e-4 ); % Hdot
+    
+  
 
     if ~any(model.has_rotor)
         Hinv = Hinverse(model, q);
@@ -105,8 +107,8 @@ function checkDynamics(model, desc)
             Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
         end
         
-        checkValue('Gamma'   , C      , C2    ); % Christoffel
-        checkValue('Hdiff'   , Gamma2 , Gamma ); % Christoffel
+        checkValue('CGamma'  , C      , C2    ); % Christoffel
+        checkValue('Gamma'   , Gamma2 , Gamma ); % Christoffel
         checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
     end
     

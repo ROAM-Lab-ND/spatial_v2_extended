@@ -66,7 +66,7 @@ for i = model.NB:-1:1
   H(ii,ii) = S{i}' * fh;
   C(ii,1) = S{i}' * fvp{i};
   
-  fh = Xup{i}'* fh;
+  fh = Xup{i}.'* fh;
   
   if model.has_rotor(i)
       H(ii,ii) = H(ii,ii) + S_rotor{i}'* model.I_rotor{i}*S_rotor{i};
@@ -79,17 +79,17 @@ for i = model.NB:-1:1
     j = model.parent(j);
     jj = model.vinds{j};
     H(jj,ii) = S{j}' * fh;
-    H(ii,jj) = H(jj,ii)';
-    fh = Xup{j}' * fh;
+    H(ii,jj) = H(jj,ii).';
+    fh = Xup{j}.' * fh;
   end
   
   if model.parent(i) ~= 0
-    IC{model.parent(i)} = IC{model.parent(i)} + Xup{i}'*IC{i}*Xup{i};
-    fvp{model.parent(i)} = fvp{model.parent(i)} + Xup{i}'*fvp{i};
+    IC{model.parent(i)} = IC{model.parent(i)} + Xup{i}.'*IC{i}*Xup{i};
+    fvp{model.parent(i)} = fvp{model.parent(i)} + Xup{i}.'*fvp{i};
     
     if model.has_rotor(i)
-        IC{model.parent(i)} = IC{model.parent(i)} + Xup_rotor{i}'*model.I_rotor{i}*Xup_rotor{i};
-        fvp{model.parent(i)} = fvp{model.parent(i)} + Xup_rotor{i}'* fvp_rotor{i};
+        IC{model.parent(i)} = IC{model.parent(i)} + Xup_rotor{i}.'*model.I_rotor{i}*Xup_rotor{i};
+        fvp{model.parent(i)} = fvp{model.parent(i)} + Xup_rotor{i}.'* fvp_rotor{i};
     end
   end
 end

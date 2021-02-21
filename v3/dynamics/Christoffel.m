@@ -1,3 +1,4 @@
+
 function Gamma = Christoffel(model,q)
 
 if ~isfield(model,'nq')

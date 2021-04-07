@@ -38,8 +38,8 @@ for i = 1:model.NB
 
 end
 
-Hqd = zeros(model.NV,1);
-CTqd= zeros(model.NV,1);
+Hqd = q{1}(1)*0 + zeros(model.NV,1);
+CTqd= q{1}(1)*0 + zeros(model.NV,1);
 
 for i = model.NB:-1:1   
   ii = model.vinds{i};

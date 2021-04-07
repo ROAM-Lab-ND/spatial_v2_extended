@@ -43,10 +43,13 @@ for i = 1:model.NB
     
 end
 
-IC = I;
-C = zeros(model.NV);
-H = zeros(model.NV);
-Hdot = zeros(model.NV);
+for i =1:model.NB
+    IC{i} = q{1}(1)*0 + model.I{i};
+end
+
+C    = q{1}(1)*0 + zeros(model.NV);
+H    = q{1}(1)*0 + zeros(model.NV);
+Hdot = q{1}(1)*0 + zeros(model.NV);
 
 for j = model.NB:-1:1
     jj = model.vinds{j};

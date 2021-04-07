@@ -56,9 +56,11 @@ if nargin == 4
   fvp = apply_external_forces( model.parent, Xup, fvp, f_ext );
 end
 
-C = zeros(model.NV,1);
-H = zeros(model.NV);
-IC = model.I;				% composite inertia calculation
+C = q{1}(1)*0 + zeros(model.NV,1);
+H = q{1}(1)*0 + zeros(model.NV);
+for i =1:model.NB
+    IC{i} = q{1}(1)*0 + model.I{i};
+end
 
 for i = model.NB:-1:1
   fh = IC{i} * S{i};

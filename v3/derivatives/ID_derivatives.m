@@ -13,7 +13,6 @@ if any( model.nv > 1)
     error('ID_derivatives only supports single-DoF joints');
 end
 
-
 a_grav = get_gravity(model);
 IC = model.I;
 I = model.I;
@@ -35,6 +34,9 @@ for i = 1:model.NB
   BC{i} = factorFunctions(I{i},v{i});
   f{i}  =  I{i}*a{i} + crf(v{i})*model.I{i}*v{i};
 end
+
+dtau_dq  = q{1}(1)*0 + zeros(model.NV,model.NV);
+dtau_dqd = q{1}(1)*0 + zeros(model.NV,model.NV);
 
 for i = model.NB:-1:1
   tmp1 = IC{i}*S{i};

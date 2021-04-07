@@ -1,8 +1,8 @@
 % Sanity Check Example for Coriolis Matrix Algorithm
 
-for N = [10 20 30]
+for N = [10]
     % Create a random model with N links
-    model = autoTree(N, 1.5, pi/3);
+    model = autoTree(N, 1, pi/3);
     model = postProcessModel(model);
     checkDynamics(model,sprintf('N=%d',N));
 end
@@ -48,9 +48,9 @@ function checkDynamics(model, desc)
         end
     end
     
-    checkValue('Cqd'   , eHdot  , 0                  ); % Generalized Coriolis force
-    checkValue('Hdot'  , eGamma , 0                  ); % Hdot -2C skew symmetric
-    checkValue('Gamma' , eCqd   , 0                  ); % Christoffel
+    checkValue('Hdot=C+CT'   , eHdot  , 0                  ); % Generalized Coriolis force
+    checkValue('C-Gamma*qd'  , eGamma , 0                  ); % Hdot -2C skew symmetric
+    checkValue('Cqd' , eCqd   , 0                  ); % Christoffel
     
     
     fprintf('\n');
@@ -62,7 +62,7 @@ function checkValue(name, v1, v2, tolerance)
     end
     value = norm(v1(:)-v2(:));
     fprintf('%s \t %e\n',name,value);
-%     if value > tolerance
-%         error('%s is out of tolerance',name);
-%     end
+    if value > tolerance
+        error('%s is out of tolerance',name);
+    end
 end

@@ -15,9 +15,11 @@ if ~iscell(q)
 end
 
 
-A = zeros(6,model.NV);
-IC = model.I;				% composite inertia calculation
-I0 = zeros(6,6);
+A = q{1}(1)*0 + zeros(6,model.NV);
+for i =1:model.NB
+    IC{i} = q{1}(1)*0 + model.I{i};
+end
+I0 = q{1}(1)*0 + zeros(6,6);
 
 for i = model.NB:-1:1
   [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );

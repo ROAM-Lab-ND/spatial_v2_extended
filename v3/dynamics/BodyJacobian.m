@@ -7,7 +7,7 @@ if ~iscell(q)
     [q] = confVecToCell(model,q);
 end
 
-J = zeros( size(Xend,1), model.NV );
+J = q{1}(1)*0 + zeros( size(Xend,1), model.NV );
 
 X = Xend;
 j = body_num;

@@ -34,8 +34,8 @@ for i = 1:model.NB
   KE(i) = 0.5 * v{i}' * hc{i};
 end
 
-ret.Itot = zeros(size(Ic{1}));
-ret.htot = zeros(size(hc{1}));
+ret.Itot = q{1}(1)*0 + zeros(size(Ic{1}));
+ret.htot = q{1}(1)*0 + zeros(size(hc{1}));
 
 for i = model.NB:-1:1
   if model.parent(i) ~= 0

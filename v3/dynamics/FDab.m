@@ -17,6 +17,9 @@ if ~iscell(q) || ~iscell(qd)
 end
 a_grav = get_gravity(model);
 
+symzero = q{1}(1)*0;
+
+
 for i = 1:model.NB
   [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
   vJ = S{i}*qd{i};
@@ -28,7 +31,7 @@ for i = 1:model.NB
     v{i} = Xup{i}*v{model.parent(i)} + vJ;
     c{i} = crm(v{i}) * vJ;
   end
-  IA{i} = model.I{i};
+  IA{i} = symzero+model.I{i};
   pA{i} = crf(v{i}) * model.I{i} * v{i};
   
   % Special stuff for rotors
@@ -59,16 +62,16 @@ for i = model.NB:-1:1
   if model.has_rotor(i) 
       U_link{i}  = IA{i} * S{i};
       U_rotor{i} = model.I_rotor{i} * S_rotor{i};
-      d{i}  = S{i}' * U_link{i} + S_rotor{i}'*U_rotor{i};
+      d{i}  = S{i}.' * U_link{i} + S_rotor{i}.'*U_rotor{i};
 
-      u{i} = tau{i} - S{i}'*pA{i} - S_rotor{i}'*pA_rotor{i} - U_link{i}'*c{i} - U_rotor{i}'*c_rotor{i};
-      U{i} = Xup{i}' * U_link{i} + Xup_rotor{i}' * U_rotor{i};
+      u{i} = tau{i} - S{i}.'*pA{i} - S_rotor{i}.'*pA_rotor{i} - U_link{i}.'*c{i} - U_rotor{i}.'*c_rotor{i};
+      U{i} = Xup{i}.' * U_link{i} + Xup_rotor{i}.' * U_rotor{i};
 
       if model.parent(i) ~= 0
-        Ia = Xup{i}' * IA{i} * Xup{i} + Xup_rotor{i}'*model.I_rotor{i}*Xup_rotor{i};  
-        Ia = Ia - U{i}/d{i}*U{i}';
+        Ia = Xup{i}.' * IA{i} * Xup{i} + Xup_rotor{i}.'*model.I_rotor{i}*Xup_rotor{i};  
+        Ia = Ia - U{i}/d{i}*U{i}.';
 
-        pa = Xup{i}'*(pA{i} + IA{i}*c{i}) + Xup_rotor{i}'*(pA_rotor{i} + model.I_rotor{i} * c_rotor{i});    
+        pa = Xup{i}.'*(pA{i} + IA{i}*c{i}) + Xup_rotor{i}.'*(pA_rotor{i} + model.I_rotor{i} * c_rotor{i});    
         pa = pa + U{i} * (d{i}\u{i});
 
         IA{p} = IA{p} + Ia;
@@ -76,15 +79,15 @@ for i = model.NB:-1:1
       end
   else % Usual ABA - slightly modified
       U{i} = IA{i} * S{i};
-      d{i} = S{i}' * U{i};
-      u{i} = tau{i} - S{i}'*pA{i} - U{i}'*c{i};
-      U{i} = Xup{i}'*U{i};
+      d{i} = S{i}.' * U{i};
+      u{i} = tau{i} - S{i}.'*pA{i} - U{i}.'*c{i};
+      U{i} = Xup{i}.'*U{i};
       
       if model.parent(i) ~= 0
-        Ia = Xup{i}' * IA{i} * Xup{i};  
-        Ia = Ia - U{i}/d{i}*U{i}';
+        Ia = Xup{i}.' * IA{i} * Xup{i};  
+        Ia = Ia - U{i}/d{i}*U{i}.';
 
-        pa = Xup{i}'*(pA{i} + IA{i}*c{i});    
+        pa = Xup{i}.'*(pA{i} + IA{i}*c{i});    
         pa = pa + U{i} * (d{i}\u{i});
 
         IA{p} = IA{p} + Ia;
@@ -93,7 +96,7 @@ for i = model.NB:-1:1
   end
 end
 
-qdd = zeros(model.NV,1);
+qdd = q{1}(1)*0 + zeros(model.NV,1);
 for i = 1:model.NB
   if model.parent(i) == 0
      ap= -a_grav; 
@@ -101,6 +104,6 @@ for i = 1:model.NB
      ap = a{model.parent(i)};
   end
   ii = model.vinds{i};
-  qdd(ii) = d{i}\(u{i} - U{i}'*ap);
+  qdd(ii) = d{i}\(u{i} - U{i}.'*ap);
   a{i} = Xup{i} * ap + S{i}*qdd(ii) + c{i};
 end

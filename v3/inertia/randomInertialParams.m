@@ -1,4 +1,4 @@
-function a = randomConsistentInertialParams()
+function a = randomInertialParams()
     J = rand(4,4)-.5;
     J = (J+J')/2;
     

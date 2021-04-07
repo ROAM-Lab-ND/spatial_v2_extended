@@ -1,5 +1,4 @@
-
-
+clear;
 c = rand(3,1);
 R = cayleyToRot(c);
 wR = rand(3,1);

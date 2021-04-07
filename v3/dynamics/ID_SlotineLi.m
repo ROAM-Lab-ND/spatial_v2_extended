@@ -53,7 +53,7 @@ for i = 1:model.NB
  
 end
 
-tau = zeros(model.NV,1);
+tau = q{1}(1)*0 + zeros(model.NV,1);
 for i = model.NB:-1:1
   ii = model.vinds{i};
   tau(ii) = S{i}' * f{i} ;

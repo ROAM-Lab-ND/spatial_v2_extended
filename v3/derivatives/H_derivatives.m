@@ -1,4 +1,4 @@
-function  [H_diff] = H_diff( model, q)
+function  [H_derivatives] = H_derivatives( model, q)
 
 if ~isfield(model,'nq')
     model = postProcessModel(model);
@@ -23,7 +23,7 @@ for i = 1:model.NB
 end
 IC = model.I;				% composite inertia calculation
 
-H_diff = repmat(0*q{1},model.NV,model.NV,model.NV);
+H_derivatives = repmat(0*q{1},model.NV,model.NV,model.NV);
 
 for k = model.NB:-1:1
     Q = crf(S{k})*IC{k} - IC{k}*crm(S{k}); % Rate of change in IC{k} due to motion of joint k
@@ -34,8 +34,8 @@ for k = model.NB:-1:1
        F2 = Q*S{j};
        i = j;
        while i > 0
-           H_diff(i,k,j) = S{i}'*F1;    H_diff(k,i,j) = S{i}'*F1;    
-           H_diff(i,j,k) = S{i}'*F2;    H_diff(j,i,k) = S{i}'*F2;
+           H_derivatives(i,k,j) = S{i}'*F1;    H_derivatives(k,i,j) = S{i}'*F1;    
+           H_derivatives(i,j,k) = S{i}'*F2;    H_derivatives(j,i,k) = S{i}'*F2;
            
            F1 = Xup{i}'*F1;     F2 = Xup{i}'*F2;
            i = model.parent(i);

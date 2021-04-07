@@ -14,8 +14,8 @@ if any( model.nv > 1)
     error('Christoffel only supports single-DoF joints');
 end
 
-IC = model.I;
 for i = 1:model.NB
+    IC{i} = q{1}(1)*0 + model.I{i};
     [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
     Xup{i} = XJ * model.Xtree{i};
 end

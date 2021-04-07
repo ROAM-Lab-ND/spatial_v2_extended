@@ -1,5 +1,6 @@
 % Unit tests for derivatives functions
 
+clear
 N = 6;
 
 % Create a random model with N links
@@ -25,8 +26,10 @@ function checkDerivatives(model, desc)
 
     qd  = rand(model.NV,1);
     qdd = rand(model.NV,1);
+    lambda = rand(model.NV,1);
 
     % Calculate dynamics quanitites
+    out        = modID(model,q,qd,qdd,lambda);
     [tau]      = ID(model, q ,qd ,qdd);                    % Inverse dynamics
     qdd_ABA    = FDab( model, q, qd, tau);                 % Forward dyanmics
     [H, Cqd]   = HandC(model, q, qd);                      % Mass matrix and bias
@@ -34,16 +37,8 @@ function checkDerivatives(model, desc)
     Cqd        = Cqd-tau_g;                                % Coriolis force
     [C,Hdot,H2]= CoriolisMatrix( model, q, qd);            % Coriolis matrix
     
-    checkValue('H'     , H      , H2                    ); % Mass matrix output is correct
     checkValue('Cqd'   , C*qd   , Cqd                   ); % Generalized Coriolis force
     checkValue('Hdot'  , Hdot   , C+C'                  ); % Hdot -2C skew symmetric
-    checkValue('qdd'   , qdd    , qdd_ABA               ); % Forward dynamics
-    checkValue('tau'   , tau    , H*qdd+C*qd+tau_g      ); % Inverse dynamics
-
-    if ~any(model.has_rotor)
-        Hinv = Hinverse(model, q);
-        checkValue('Hinv', Hinv , inv(H) );
-    end
 
     % Check Christoffel
     if ~any(model.nv > 1) && ~any(model.has_rotor)
@@ -52,7 +47,7 @@ function checkDerivatives(model, desc)
         for i = 1:model.NB
             C2 = C2 + Gamma(:,:,i)*qd(i);
         end
-        Hpartial = H_diff(model,q);
+        Hpartial = H_derivatives(model,q);
         Gamma2 = 0*Gamma;
         Hdot2 = 0*Hdot;
         for i = 1:model.NB
@@ -63,35 +58,78 @@ function checkDerivatives(model, desc)
             end
             Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
         end
+        n2 = model.NV*model.NV;
+        Hpartial = reshape(Hpartial,n2,model.NV);
         
-        % Check dtau_dq, dtau_dqd, dH_dq
-        for i =1:model.NV
-            qd_cs = qd;
-            q_cs = q;
-            qd_cs(i) = qd_cs(i) + sqrt(-1)*eps;
-            q_cs(i)  = q(i) + sqrt(-1)*eps;
-            
-            tau_qd_cs = ID(model, q ,qd_cs ,qdd);
-            tau_q_cs  = ID(model, q_cs ,qd ,qdd);
-            
-            [H_cs, ~] = HandC(model, q_cs, qd);
-            
-            dH_dq(:,:,i) = imag(H_cs)/eps;
-            dtau_dqd_cs(:,i) = imag(tau_qd_cs)/eps;
-            dtau_dq_cs(:,i) = imag(tau_q_cs)/eps;
-        end
+        dH_dq = complexStepJacobian(@(x) reshape(HandC(model, x, qd),n2,1), q);  
+        
+        dtau_dqd_cs = complexStepJacobian(@(x) ID(model, q ,x ,qdd), qd);
+        dtau_dq_cs = complexStepJacobian(@(x) ID(model, x ,qd ,qdd), q );
+        
+        dmodID_dq_cs  = complexStepJacobian(@(x) modID(model, x ,qd ,qdd,lambda), q );
+        dmodID_dqd_cs = complexStepJacobian(@(x) modID(model, q ,x  ,qdd,lambda), qd);
+        
+        dmodFD_dq_cs  = complexStepJacobian(@(x) modFD(model, x ,qd ,tau,lambda), q );
+        dmodFD_dqd_cs = complexStepJacobian(@(x) modFD(model, q ,x  ,tau,lambda), qd);
+        dmodFD_dtau_cs = complexStepJacobian(@(x) modFD(model,q ,qd ,x ,lambda), tau);
+        
+        
+        dqdd_dq_cs  = complexStepJacobian( @(x) FDab(model,x,qd,tau),q );
+        dqdd_dqd_cs = complexStepJacobian( @(x) FDab(model,q,x,tau),qd );
+        dqdd_dtau_cs= complexStepJacobian( @(x) FDab(model,q,qd,x),tau );
         
         [dtau_dq, dtau_dqd] = ID_derivatives( model, q, qd, qdd );
-        
-        checkValue('dtau_dq'   , dtau_dq      , dtau_dq_cs            ); % Partials of ID w.r.t. q
-        checkValue('dtau_dqd'  , dtau_dqd     , dtau_dqd_cs           ); % Partials of ID w.r.t. qd
-        checkValue('dH_dq'     , Hpartial     , dH_dq                 ); % Partials of H w.r.t. q
+        [dqdd_dq, dqdd_dqd,dqdd_dtau] = FD_derivatives( model, q, qd, tau );
+        [dmodID_dq, dmodID_dqd] = modID_derivatives( model, q, qd, qdd, lambda );
+        [dmodFD_dq, dmodFD_dqd, dmodFD_dtau] = modFD_derivatives( model, q, qd, tau, lambda );
 
+
+        modID_qq_cs   = complexStepJacobian( @(x) outputSelect(1,@modID_derivatives,model,x,qd,qdd,lambda),q );
+        modID_qdqd_cs = complexStepJacobian( @(x) outputSelect(2,@modID_derivatives,model,q,x,qdd,lambda),qd );
+        modID_qdq_cs  = complexStepJacobian( @(x) outputSelect(2,@modID_derivatives,model,x,qd,qdd,lambda),q );
+
+        [~, ~, modID_qq, modID_qdqd, modID_qdq] = modID_second_derivatives( model, q, qd, qdd, lambda);
+        [~, ~, ~, modFD_qq, modFD_qdqd, modFD_qdq, modFD_tauq] = modFD_second_derivatives( model, q, qd, tau, lambda );
+        
+        modFD_qq_cs   = complexStepJacobian( @(x) outputSelect(1,@modFD_derivatives,model,x,qd,tau,lambda),q );
+        modFD_qdqd_cs = complexStepJacobian( @(x) outputSelect(2,@modFD_derivatives,model,q,x,tau,lambda),qd );
+        modFD_qdq_cs  = complexStepJacobian( @(x) outputSelect(2,@modFD_derivatives,model,x,qd,tau,lambda),q );
+        modFD_tauq_cs = complexStepJacobian( @(x) outputSelect(3,@modFD_derivatives,model,x,qd,tau,lambda),q );
+
+        
+        checkValue('ID_q'   , dtau_dq      , dtau_dq_cs            ); % Partials of ID w.r.t. q
+        checkValue('ID_qd'  , dtau_dqd     , dtau_dqd_cs           ); % Partials of ID w.r.t. qd
+        
+        checkValue('FD_q'   , dqdd_dq      , dqdd_dq_cs            ); % Partials of FD w.r.t. q
+        checkValue('FD_qd'  , dqdd_dqd     , dqdd_dqd_cs           ); % Partials of FD w.r.t. qd
+        checkValue('FD_tau'   , dqdd_dtau    , dqdd_dtau_cs          ); % Partials of FD w.r.t. tau
+        
+        checkValue('H_q'     , Hpartial     , dH_dq                 ); % Partials of H w.r.t. q
+        
+        disp('====================================');
+        
+        checkValue('modID_q'   , dmodID_dq      , dmodID_dq_cs            ); % Partials of modID w.r.t. q
+        checkValue('modID_qd'  , dmodID_dqd     , dmodID_dqd_cs           ); % Partials of modID w.r.t. qd
+        
+        checkValue('modFD_q'   , dmodFD_dq      , dmodFD_dq_cs            ); % Partials of modFD w.r.t. q
+        checkValue('modFD_qd'  , dmodFD_dqd     , dmodFD_dqd_cs           ); % Partials of modFD w.r.t. qd
+        checkValue('modFD_tau' , dmodFD_dtau    , dmodFD_dtau_cs          ); % Partials of modFD w.r.t. qd
+        
+        checkValue('modID_qq'    , modID_qq      , modID_qq_cs            ); % SO Partials of modID w.r.t. q,q
+        checkValue('modID_qdq'   , modID_qdq     , modID_qdq_cs           ); % SO Partials of modID w.r.t. qd,q
+        checkValue('modID_qdqd'  , modID_qdqd    , modID_qdqd_cs          ); % SO Partials of modID w.r.t. qd,qd
+
+        checkValue('modFD_qq'    , modFD_qq      , modFD_qq_cs            ); % SO Partials of modID w.r.t. q,q
+        checkValue('modFD_qdq'   , modFD_qdq     , modFD_qdq_cs           ); % SO Partials of modID w.r.t. qd,q
+        checkValue('modFD_qdqd'  , modFD_qdqd    , modFD_qdqd_cs          ); % SO Partials of modID w.r.t. qd,qd
+        checkValue('modFD_tauq'  , modFD_tauq    , modFD_tauq_cs           ); % SO Partials of modID w.r.t. tau,q
+ 
     end
     
-   
     fprintf('\n');
 end
+
+
 
 function checkValue(name, v1, v2, tolerance)
     if nargin == 3
@@ -99,7 +137,7 @@ function checkValue(name, v1, v2, tolerance)
     end
     value = norm(v1(:)-v2(:));
     fprintf('%10s \t %e\n',name,value);
-%     if value > tolerance
-%         error('%s is out of tolerance',name);
-%     end
+    if value > tolerance
+        error('%s is out of tolerance',name);
+    end
 end

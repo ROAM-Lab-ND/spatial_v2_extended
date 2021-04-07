@@ -53,7 +53,9 @@ if nargin == 5
   f = apply_external_forces( model.parent, Xup, f, f_ext );
 end
 
-tau = zeros(model.NV,1);
+% This line ensures that ID is symbolic or Casadi compatible
+tau = q{1}(1)*0 + zeros(model.NV,1);
+    
 for i = model.NB:-1:1
   p = model.parent(i);
   

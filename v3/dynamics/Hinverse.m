@@ -20,10 +20,10 @@ end
 
 
 IA = model.I; % Cell array for Artiulated-Body Inertias
-F = repmat({zeros(6,model.NV)},model.NV,1); % Satisfies F{i}*tau = pA{i} from usual ABA
-P = repmat({zeros(6,model.NV)},model.NV,1); % Satisfies P{i}*tau = a{i}  from usual ABA
+F = repmat({q{1}(1)*0 + zeros(6,model.NV)},model.NV,1); % Satisfies F{i}*tau = pA{i} from usual ABA
+P = repmat({q{1}(1)*0 + zeros(6,model.NV)},model.NV,1); % Satisfies P{i}*tau = a{i}  from usual ABA
 
-Hinv = zeros(model.NV); % Inerse of Mass Matrix
+Hinv = q{1}(1)*0 + zeros(model.NV); % Inerse of Mass Matrix
 
 % Outward Pass
 for i = 1:model.NB

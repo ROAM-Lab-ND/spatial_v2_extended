@@ -23,7 +23,7 @@ for i = 1:model.NB
   Xup{i} = XJ * model.Xtree{i};
   if model.parent(i) == 0
     vp{i} = zeros(6,1);
-    ap{i} = -a_grav;
+    ap{i} = Xup{i}*(-a_grav);
     wp{i} = zeros(6,1);
   else
     vp{i} = Xup{i}*v{model.parent(i)};
@@ -43,14 +43,14 @@ for i = 1:model.NB
   
 end
 
-grad_q = repmat( 0*q{1}(1), [size(q,1),size(lambda,2)] );
+grad_q = repmat( 0*q{1}(1), [size(qd,1),size(lambda,2)] );
 grad_qd = repmat(0*0*q{1}(1),[size(qd,1),size(lambda,2)] );
 
 for i = model.NB:-1:1
+   ii = model.vinds{i};
    z{i} = z{i} + crf(vJ{i})*h{i};    
-   grad_qd(i,:) = S{i}.'*(z{i}-crf(v{i})*h{i});
-   grad_q(i,:)  = -S{i}.'*(crf(vp{i})*z{i} +crf(ap{i})*h{i} + icrf(f{i})*wp{i});
-            
+   grad_qd(ii,:) = S{i}.'*(z{i}-crf(v{i})*h{i});
+   grad_q(ii,:)  = -S{i}.'*(crf(vp{i})*z{i} +crf(ap{i})*h{i} + icrf(f{i})*wp{i});
    p = model.parent(i);
    if p > 0
       z{p} = z{p}+Xup{i}.'*z{i};

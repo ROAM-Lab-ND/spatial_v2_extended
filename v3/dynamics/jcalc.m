@@ -53,6 +53,12 @@ switch code
   case 'Fb'
     S = eye(6);
     Xj = plux( rq(q(1:4)), q(5:7) );
+  case 'SE3'
+    S = eye(6);
+    T = reshape(q,[4 4]);
+    R = T(1:3,1:3);
+    p = T(1:3,4);
+    Xj = [R zeros(3); skew(p)*R R];
   otherwise
     error( 'unrecognised joint code ''%s''', code );
 end

@@ -37,7 +37,8 @@ end
 grad_q = repmat( 0*q{1}(1), [size(q,1),size(lambda,2)] );
 
 for i = model.NB:-1:1
-   grad_q(i,:)  = -S{i}.'*(crf(ap{i})*h{i} + icrf(f{i})*wp{i});
+   ii = model.vinds{i};
+   grad_q(ii,:)  = -S{i}.'*(crf(ap{i})*h{i} + icrf(f{i})*wp{i});
             
    p = model.parent(i);
    if p > 0

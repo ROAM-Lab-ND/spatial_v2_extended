@@ -1,4 +1,4 @@
-function J = complexStepJacobian(f, x, step)
+function [J, evals, steps] = complexStepJacobian(f, x, step)
     if nargin == 2
         step = eps;
     end
@@ -9,6 +9,9 @@ function J = complexStepJacobian(f, x, step)
     for ind = 1:m
        e = zeros(m,1);
        e(ind) = 1;
-       J(:,ind) = imag( f(x+i*e*step))/step;  
+       steps(:,ind) = x+1i*e*step;
+       evals(:,ind) = f(x+1i*e*step);
+       
+       J(:,ind) = imag( f(x+1i*e*step))/step;  
     end
 end

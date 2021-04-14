@@ -16,6 +16,12 @@ switch code
   case 'Fb'
     nq = 7;
     nv = 6;
+  case 'SO3'
+    nq = 9;
+    nv = 3;
+  case 'SE3'
+    nq = 16;
+    nv = 6;
   otherwise
     error( 'unrecognised joint code ''%s''', code );
 end

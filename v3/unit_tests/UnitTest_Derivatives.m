@@ -1,10 +1,10 @@
 % Unit tests for derivatives functions
 
 clear
-N = 6;
+N = 15;
 
 % Create a random model with N links
-model = autoTree(N, 1, pi/3);
+model = autoTree(N, 1.5, pi/3);
 model = postProcessModel(model);
 checkDerivatives(model,'Fixed Base No Rotors');
 

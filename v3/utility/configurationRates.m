@@ -14,11 +14,11 @@ function dot_q = configurationRates(model,q,qd)
         
         switch model.jtype{i}
             case {'Fb'}
-                R = rq(q{i}(1:4));
+                Rup = rq(q{i}(1:4));
                 dot_q(ii) = [rqd(q{i}(1:4),qd{i}(1:3) ) ;
-                        R * qd{i}(4:6)];
+                        Rup' * qd{i}(4:6)];
             case {'S'}
-                R = rq(q{i}(1:4));
+                Rup = rq(q{i}(1:4));
                 dot_q(ii) = [rqd(q{i}(1:4),qd{i}(1:3) )];
                 
             otherwise

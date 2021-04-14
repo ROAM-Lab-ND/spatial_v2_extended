@@ -9,6 +9,7 @@ function  qdd = FDab_rotor( model, q, qd, tau, f_ext )
 % omitted if there are no external forces.  The format of f_ext is
 % explained in the source code of apply_external_forces.
 
+
 if ~isfield(model,'nq')
     model = postProcessModel(model);
 end

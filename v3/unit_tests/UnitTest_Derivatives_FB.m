@@ -92,21 +92,21 @@ function checkDerivatives(model, desc)
     modFD_qdq_cs  = complexStepJacobian( @(x) outputSelect(2,@modFD_derivatives,model,newConfig(x),qd,tau,lambda),0*qd );
     modFD_tauq_cs = complexStepJacobian( @(x) outputSelect(3,@modFD_derivatives,model,newConfig(x),qd,tau,lambda),0*qd );
 
-    checkValue('ID_q'   , dtau_dq      , dtau_dq_cs            ); % Partials of ID w.r.t. q
-    checkValue('ID_qd'  , dtau_dqd     , dtau_dqd_cs           ); % Partials of ID w.r.t. qd
+    checkValue('ID_q'   , dtau_dq      , dtau_dq_cs   ,1e10         ); % Partials of ID w.r.t. q
+    checkValue('ID_qd'  , dtau_dqd     , dtau_dqd_cs  ,1e10         ); % Partials of ID w.r.t. qd
 % 
-    checkValue('FD_q'   , dqdd_dq      , dqdd_dq_cs            ); % Partials of FD w.r.t. q
-    checkValue('FD_qd'  , dqdd_dqd     , dqdd_dqd_cs           ); % Partials of FD w.r.t. qd
+    checkValue('FD_q'   , dqdd_dq      , dqdd_dq_cs     ,1e10       ); % Partials of FD w.r.t. q
+    checkValue('FD_qd'  , dqdd_dqd     , dqdd_dqd_cs    ,1e10       ); % Partials of FD w.r.t. qd
     checkValue('FD_tau'   , dqdd_dtau    , dqdd_dtau_cs          ); % Partials of FD w.r.t. tau
     
     fprintf('====================================\n');
     
-    checkValue('ID_q_fd'   , dtau_dq_fd      , dtau_dq_cs            ); % Partials of ID w.r.t. q
-    checkValue('ID_qd_fd'  , dtau_dqd_fd     , dtau_dqd_cs           ); % Partials of ID w.r.t. qd
+    checkValue('ID_q_fd'   , dtau_dq_fd      , dtau_dq_cs     , 5e-03       ); % Partials of ID w.r.t. q
+    checkValue('ID_qd_fd'  , dtau_dqd_fd     , dtau_dqd_cs    , 5e-03       ); % Partials of ID w.r.t. qd
 
-    checkValue('FD_q_fd'   , dqdd_dq_fd      , dqdd_dq_cs            ); % Partials of FD w.r.t. q
-    checkValue('FD_qd_fd'  , dqdd_dqd_fd     , dqdd_dqd_cs           ); % Partials of FD w.r.t. qd
-    checkValue('FD_tau_fd'   , dqdd_dtau_fd    , dqdd_dtau_cs          ); % Partials of FD w.r.t. tau
+    checkValue('FD_q_fd'   , dqdd_dq_fd      , dqdd_dq_cs     , 5e-03       ); % Partials of FD w.r.t. q
+    checkValue('FD_qd_fd'  , dqdd_dqd_fd     , dqdd_dqd_cs    , 5e-03       ); % Partials of FD w.r.t. qd
+    checkValue('FD_tau_fd'   , dqdd_dtau_fd    , dqdd_dtau_cs , 5e-03       ); % Partials of FD w.r.t. tau
 % 
     disp('====================================');
 %   
@@ -142,7 +142,7 @@ function checkValue(name, v1, v2, tolerance)
     end
     value = norm(v1(:)-v2(:));
     fprintf('%10s \t %e\n',name,value);
-%     if value > tolerance
-%         error('%s is out of tolerance',name);
-%     end
+    if value > tolerance
+        error('%s is out of tolerance',name);
+    end
 end

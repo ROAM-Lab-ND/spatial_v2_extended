@@ -7,6 +7,9 @@ UnitTest_Coriolis
 printHeader('Derivatives'); 
 UnitTest_Derivatives
 
+printHeader('Derivatives (Floating)'); 
+UnitTest_Derivatives_FB
+
 printHeader('Main Dynamics'); 
 UnitTest_Dynamics
 

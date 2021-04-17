@@ -78,7 +78,7 @@ function checkDerivatives(model, desc)
         dqdd_dqd_cs = complexStepJacobian( @(x) FDab(model,q,x,tau),qd );
         dqdd_dtau_cs= complexStepJacobian( @(x) FDab(model,q,qd,x),tau );
         
-        [dtau_dq, dtau_dqd] = ID_derivatives( model, q, qd, qdd );
+        [dtau_dq, dtau_dqd] = ID_derivatives_world( model, q, qd, qdd );
         [dqdd_dq, dqdd_dqd,dqdd_dtau] = FD_derivatives( model, q, qd, tau );
         [dmodID_dq, dmodID_dqd] = modID_derivatives( model, q, qd, qdd, lambda );
         [dmodFD_dq, dmodFD_dqd, dmodFD_dtau] = modFD_derivatives( model, q, qd, tau, lambda );

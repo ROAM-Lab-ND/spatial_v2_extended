@@ -12,11 +12,25 @@ function model = postProcessModel(model)
     model.nv = [];
     model.qinds = {};
     model.vinds = {};
+    model.ancestors = {};
+    model.ancestor_vinds = {};
+    model.subtree_vinds = {};
+    
     
     for i = 1:model.NB
         [nqi, nvi] = jinfo( model.jtype{i} );
         model.qinds{i} = qi+1 : qi+nqi;
         model.vinds{i} = vi+1 : vi+nvi;
+        
+        if model.parent(i) == 0
+            model.ancestors{i} = [];
+            model.ancestor_vinds{i} = [];
+        else
+            model.ancestors{i} = model.ancestors{ model.parent(i)};
+            model.ancestor_vinds{i} = model.ancestor_vinds{ model.parent(i)};
+        end
+        model.ancestors{i} = [model.ancestors{i}  i];
+        model.ancestor_vinds{i} = [model.ancestor_vinds{i} model.vinds{i}];
         
         if model.has_rotor(i)
             model.rotor_param_inds{i} = ai+1  : ai+10;
@@ -28,6 +42,16 @@ function model = postProcessModel(model)
         
         qi = qi + nqi;
         vi = vi + nvi;
+        model.subtree_vinds{i} = [];
+    end
+    
+    for i = model.NB:-1:1
+        ii = model.vinds{i};
+        model.subtree_vinds{i} = [ii model.subtree_vinds{i}];
+        if model.parent(i) > 0
+            p = model.parent(i);
+            model.subtree_vinds{p} = [model.subtree_vinds{i} model.subtree_vinds{p}];
+        end
     end
     
     model.NV = vi;

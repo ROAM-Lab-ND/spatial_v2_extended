@@ -39,13 +39,13 @@ for i = 1:model.NB
   
   Sd{i} = crm(v{i})*S{i};
   Sdd{i}= crm(a{i})*S{i} + crm(v{i})*Sd{i};
-  Sj{i} = crm(vJ{i})*S{i};
+  Sj{i} = 2*Sd{i} + crm(vJ{i})*S{i};
   
   v{i} = v{i} + vJ{i};
   a{i} = a{i} + aJ{i};
   IC{i} = Xup0{i}'*I{i}*Xup0{i};
   
-  BC{i} = factorFunctions(IC{i},v{i});
+  BC{i} = 2*factorFunctions(IC{i},v{i});
   f{i}  =  IC{i}*a{i} + crf(v{i})*IC{i}*v{i};
 end
 
@@ -61,9 +61,9 @@ for i = model.NB:-1:1
   ii = model.vinds{i};
   
   tmp1(:,ii) = IC{i}*S{i};
-  tmp2(:,ii) = 2*(BC{i}*S{i} + IC{i}*(Sd{i} + 1/2*crm(vJ{i})*S{i}) );
-  tmp3(:,ii) = 2*BC{i}*Sd{i} + IC{i}*Sdd{i} + icrf(f{i})*S{i}; 
-  tmp4(:,ii) = 2*BC{i}.'*S{i};
+  tmp2(:,ii) = BC{i}*S{i} + IC{i}*Sj{i};
+  tmp3(:,ii) = BC{i}*Sd{i} + IC{i}*Sdd{i} + icrf(f{i})*S{i}; 
+  tmp4(:,ii) = BC{i}.'*S{i};
   
   jj = model.subtree_vinds{i};
   
@@ -71,7 +71,7 @@ for i = model.NB:-1:1
   dtau_dq(jj,ii)  = tmp1(:,jj).'*Jdd(:,ii)+tmp4(:,jj).'*Jd(:,ii);
 
   dtau_dqd(ii,jj) = J(:,ii).'*tmp2(:,jj);
-  dtau_dqd(jj,ii) =  2*tmp1(:,jj).'*Jd(:,ii)+tmp4(:,jj).'*J(:,ii) +tmp1(:,jj).'*Jj(:,ii);
+  dtau_dqd(jj,ii) =  tmp1(:,jj).'*Jj(:,ii)+tmp4(:,jj).'*J(:,ii);
   
   if model.parent(i) > 0
      p = model.parent(i);

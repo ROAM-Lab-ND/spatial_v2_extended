@@ -1,3 +1,4 @@
+
 % Unit tests for derivatives functions
 
 clear
@@ -13,7 +14,7 @@ function checkDerivatives(model, desc)
     fprintf('%s\n',desc);
     fprintf('====================================\n');
     
-    model.jtype{1} = 'SE3';
+    model.jtype{1} = 'Fb';
     model = postProcessModel(model);
     
     % Random inertial properties
@@ -26,6 +27,8 @@ function checkDerivatives(model, desc)
     q   = rand(model.NQ,1);
     if strcmp(model.jtype{1},'SE3')
         q(1:16) = reshape( randomSE3(),[16 1]);
+    elseif strcmp(model.jtype{1},'Fb')
+        q(1:4) = q(1:4)/norm(q(1:4));
     end
     
     %q   = normalizeConfVec(model, q); 
@@ -76,7 +79,7 @@ function checkDerivatives(model, desc)
     [dtau_dq, dtau_dqd] = ID_derivatives_world( model, q, qd, qdd );
     [dqdd_dq, dqdd_dqd,dqdd_dtau] = FD_derivatives( model, q, qd, tau );
     
-    [dmodID_dq, dmodID_dqd] = modID_derivatives( model, q, qd, qdd, lambda );
+    [dmodID_dq, dmodID_dqd] = modID_derivatives_soa( model, q, qd, qdd, lambda );
     [dmodFD_dq, dmodFD_dqd, dmodFD_dtau] = modFD_derivatives( model, q, qd, tau, lambda );
 % 
     modID_qq_cs   = complexStepJacobian( @(x) outputSelect(1,@modID_derivatives,model,newConfig(x),qd,qdd,lambda), zeros(model.NV,1) );
@@ -142,7 +145,7 @@ function checkValue(name, v1, v2, tolerance)
     end
     value = norm(v1(:)-v2(:));
     fprintf('%10s \t %e\n',name,value);
-%     if value > tolerance
-%         error('%s is out of tolerance',name);
-%     end
+    if value > tolerance
+        error('%s is out of tolerance',name);
+    end
 end

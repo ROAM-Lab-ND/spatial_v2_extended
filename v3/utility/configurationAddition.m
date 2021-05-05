@@ -18,16 +18,23 @@ function new_q = configurationAddition(model,q,dq)
                 X = jcalc('Fb',q{i});
                 v = dq{i}(4:6);
                 Rup = X(1:3,1:3);
+
+                if norm( imag(dq{i})) > 0
+                    % This just doesn't work... not sure why. something
+                    % quaterniony that is strange, as quaternions are.
+                    qt_new = q{i}(1:4) + [0 ; dq{i}(1:3)/2];
+                else
+                  qt_new = expm(quatR([0 ; dq{i}(1:3)/2 ]))* q{i}(1:4);
+                end
                 
-                dquat = angleAxisToQuat( dq{i}(1:3) );
-                qt_new = quatProduct(q{i}(1:4), dquat );
-                p_new  = q{i}(5:7) + Rup'*v;
-                
+                p_new  = q{i}(5:7) + Rup.'*v;
                 new_q(ii) = [qt_new ; p_new];
-                
             case {'S'}
-                dquat = angleAxisToQuat( dq{i} );
-                new_q(ii) = quatProduct(q{i}(1:4), dquat );
+                if norm( imag(dq{i})) > 0
+                    new_q(ii) = q{i}(1:4) + [0 ; dq{i}/2];
+                else
+                    new_q(ii) = expm(quatR([0 ; dq{i}/2 ]))* q{i}(1:4);
+                end
             case {'SO3'}
                 R = reshape(q{i},[3 3]);
                 so3 = -skew(dq{i});

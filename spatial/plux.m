@@ -15,13 +15,13 @@ if nargin == 2				% E,r --> X
     if all(size(i1) == [3 3])
         o1 = [ i1, zeros(3); -i1*skew(i2), i1 ];
     else
-        o1 = [1 0 0 ; i1*[-i2(2) i2(1)]' i1];
+        o1 = [1 0 0 ; i1*[-i2(2) i2(1)].' i1];
     end
 else
     X = i1;  % X --> E,r
     if all(size(X)==[6 6])			% 3D points
         E = X(1:3,1:3);
-        r = -skew(E'*X(4:6,1:3));
+        r = -skew(E.'*X(4:6,1:3));
     else					% 2D points
         E = X(2:3,2:3);
         r = [ X(2,3)*X(2,1)+X(3,3)*X(3,1); X(2,3)*X(3,1)-X(3,3)*X(2,1) ];

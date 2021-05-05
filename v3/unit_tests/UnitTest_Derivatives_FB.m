@@ -79,7 +79,7 @@ function checkDerivatives(model, desc)
     [dtau_dq, dtau_dqd] = ID_derivatives_world( model, q, qd, qdd );
     [dqdd_dq, dqdd_dqd,dqdd_dtau] = FD_derivatives( model, q, qd, tau );
     
-    [dmodID_dq, dmodID_dqd] = modID_derivatives_soa( model, q, qd, qdd, lambda );
+    [dmodID_dq, dmodID_dqd] = modID_derivatives( model, q, qd, qdd, lambda );
     [dmodFD_dq, dmodFD_dqd, dmodFD_dtau] = modFD_derivatives( model, q, qd, tau, lambda );
 % 
     modID_qq_cs   = complexStepJacobian( @(x) outputSelect(1,@modID_derivatives,model,newConfig(x),qd,qdd,lambda), zeros(model.NV,1) );
@@ -95,11 +95,11 @@ function checkDerivatives(model, desc)
     modFD_qdq_cs  = complexStepJacobian( @(x) outputSelect(2,@modFD_derivatives,model,newConfig(x),qd,tau,lambda),0*qd );
     modFD_tauq_cs = complexStepJacobian( @(x) outputSelect(3,@modFD_derivatives,model,newConfig(x),qd,tau,lambda),0*qd );
 
-    checkValue('ID_q'   , dtau_dq      , dtau_dq_cs   ,1e10         ); % Partials of ID w.r.t. q
-    checkValue('ID_qd'  , dtau_dqd     , dtau_dqd_cs  ,1e10         ); % Partials of ID w.r.t. qd
+    checkValue('ID_q'   , dtau_dq      , dtau_dq_cs   ,1e-5         ); % Partials of ID w.r.t. q
+    checkValue('ID_qd'  , dtau_dqd     , dtau_dqd_cs  ,1e-5         ); % Partials of ID w.r.t. qd
 % 
-    checkValue('FD_q'   , dqdd_dq      , dqdd_dq_cs     ,1e10       ); % Partials of FD w.r.t. q
-    checkValue('FD_qd'  , dqdd_dqd     , dqdd_dqd_cs    ,1e10       ); % Partials of FD w.r.t. qd
+    checkValue('FD_q'   , dqdd_dq      , dqdd_dq_cs     ,1e-5       ); % Partials of FD w.r.t. q
+    checkValue('FD_qd'  , dqdd_dqd     , dqdd_dqd_cs    ,1e-5       ); % Partials of FD w.r.t. qd
     checkValue('FD_tau'   , dqdd_dtau    , dqdd_dtau_cs          ); % Partials of FD w.r.t. tau
     
     fprintf('====================================\n');

@@ -19,10 +19,9 @@ function new_q = configurationAddition(model,q,dq)
                 v = dq{i}(4:6);
                 Rup = X(1:3,1:3);
 
-                if norm( imag(dq{i})) > 0
-                    % This just doesn't work... not sure why. something
-                    % quaterniony that is strange, as quaternions are.
-                    qt_new = q{i}(1:4) + [0 ; dq{i}(1:3)/2];
+                if norm( imag(dq{i})) > 0  
+                    % 1st order approximation to exponential map for quats
+                    qt_new = (eye(4) + quatR( [0 ; dq{i}(1:3)/2]))* q{i}(1:4);
                 else
                   qt_new = expm(quatR([0 ; dq{i}(1:3)/2 ]))* q{i}(1:4);
                 end
@@ -31,14 +30,16 @@ function new_q = configurationAddition(model,q,dq)
                 new_q(ii) = [qt_new ; p_new];
             case {'S'}
                 if norm( imag(dq{i})) > 0
-                    new_q(ii) = q{i}(1:4) + [0 ; dq{i}/2];
+                    % 1st order approximation to exponential map for quats
+                    new_q(ii) = (eye(4) + quatR( [0 ; dq{i}/2]))* q{i};
                 else
-                    new_q(ii) = expm(quatR([0 ; dq{i}/2 ]))* q{i}(1:4);
+                    new_q(ii) = expm(quatR([0 ; dq{i}/2 ]))* q{i};
                 end
             case {'SO3'}
                 R = reshape(q{i},[3 3]);
                 so3 = -skew(dq{i});
                 if norm( imag(dq{i})) > 0
+                    % 1st order approximation to exponential map
                     new_q(ii) = reshape( so3* R + R, [9 1]);
                 else
                     new_q(ii) = reshape(expm(so3) * R, [9 1]);
@@ -48,6 +49,7 @@ function new_q = configurationAddition(model,q,dq)
                 se3 = vecTose3(dq{i});
                 if norm( imag(dq{i})) > 0
                     % Special case for complex step on SE3
+                    % 1st order approximation to exponential map
                     new_q(ii) = reshape( -se3*Tup + Tup, [16 1]);
                 else   
                     new_q(ii) = reshape( expm(-se3)*Tup, [16 1]);

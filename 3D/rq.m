@@ -24,8 +24,6 @@ end
 
 function  E = qtoE( q )
 
-qimag = imag(q)*1i;
-q = real(q);
 q = q / norm(q);
 
 q0s = q(1)*q(1);
@@ -39,9 +37,7 @@ q12 = q(2)*q(3);
 q13 = q(4)*q(2);
 q23 = q(3)*q(4);
 
-E_cs = (eye(3) - 2*skew(qimag(2:4) ) ); % Extra rotation for complex-step support
-
-E = E_cs * 2 * [ q0s+q1s-0.5, q12 + q03,   q13 - q02;
+E = 2 * [ q0s+q1s-0.5, q12 + q03,   q13 - q02;
 	  q12 - q03,   q0s+q2s-0.5, q23 + q01;
 	  q13 + q02,   q23 - q01,   q0s+q3s-0.5 ];
 

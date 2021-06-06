@@ -8,7 +8,13 @@ model_no_grav.gravity = [0;0;0];
 mu = FDab(model_no_grav,q,0*qd, -lambda);
 qdd = FDab(model,q,qd,tau);
 
-[~, ~, H_qq, H_qdqd, H_qdq, dtau_dq, dtau_dqd] = modID_second_derivatives( model, q, qd, qdd, mu);
+derivs = modID_second_derivatives( model, q, qd, qdd, mu);
+H_qq     = derivs.dmod_dqq;
+H_qdqd   = derivs.dmod_dvv;
+H_qdq    = derivs.dmod_dqv';
+dtau_dq  = derivs.dtau_dq;
+dtau_dqd = derivs.dtau_dv;
+
 Hinv = Hinverse(model,q);
 
 % First Order Partials

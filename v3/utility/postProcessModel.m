@@ -43,6 +43,7 @@ function model = postProcessModel(model)
         qi = qi + nqi;
         vi = vi + nvi;
         model.subtree_vinds{i} = [];
+        model.successor_vinds{i} = [];
     end
     
     for i = model.NB:-1:1
@@ -51,6 +52,7 @@ function model = postProcessModel(model)
         if model.parent(i) > 0
             p = model.parent(i);
             model.subtree_vinds{p} = [model.subtree_vinds{i} model.subtree_vinds{p}];
+            model.successor_vinds{p} = [ii model.successor_vinds{i} model.successor_vinds{p}];
         end
     end
     

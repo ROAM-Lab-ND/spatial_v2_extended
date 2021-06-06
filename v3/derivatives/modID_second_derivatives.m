@@ -1,7 +1,7 @@
-function  [grad_q, grad_qd, H_qq, H_qdqd, H_qdq, dtau_dq, dtau_dqd] = modID_second_derivatives( model, q, qd, qdd, lambda)
+function  derivs = modID_second_derivatives( model, q, qd, qdd, lambda)
 
 %%% Forward mode chain rule applied to the reverse mode accmulation in 
-% mod_ID_derivatives
+% mod_ID_derivatives. 
 % 
 
 
@@ -142,3 +142,11 @@ for i = model.NB:-1:1
       df_dqd{p}= df_dqd{p}+ Xup{i}'*df_dqd{i};
    end 
 end
+
+derivs.dtau_dq  = dtau_dq ;
+derivs.dtau_dv  = dtau_dqd;
+derivs.dmod_dq  = grad_q ;
+derivs.dmod_dv  = grad_qd;
+derivs.dmod_dqq = H_qq;
+derivs.dmod_dvv = H_qdqd;
+derivs.dmod_dqv = H_qdq.';

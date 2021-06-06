@@ -78,7 +78,7 @@ function checkDerivatives(model, desc)
         dqdd_dqd_cs = complexStepJacobian( @(x) FDab(model,q,x,tau),qd );
         dqdd_dtau_cs= complexStepJacobian( @(x) FDab(model,q,qd,x),tau );
         
-        [dtau_dq, dtau_dqd] = ID_derivatives_world( model, q, qd, qdd );
+        [dtau_dq, dtau_dqd] = ID_derivatives( model, q, qd, qdd );
         [dqdd_dq, dqdd_dqd,dqdd_dtau] = FD_derivatives( model, q, qd, tau );
         [dmodID_dq, dmodID_dqd] = modID_derivatives( model, q, qd, qdd, lambda );
         [dmodFD_dq, dmodFD_dqd, dmodFD_dtau] = modFD_derivatives( model, q, qd, tau, lambda );
@@ -88,7 +88,13 @@ function checkDerivatives(model, desc)
         modID_qdqd_cs = complexStepJacobian( @(x) outputSelect(2,@modID_derivatives,model,q,x,qdd,lambda),qd );
         modID_qdq_cs  = complexStepJacobian( @(x) outputSelect(2,@modID_derivatives,model,x,qd,qdd,lambda),q );
 
-        [~, ~, modID_qq, modID_qdqd, modID_qdq] = modID_second_derivatives( model, q, qd, qdd, lambda);
+        derivs = modID_second_derivatives( model, q, qd, qdd, lambda);
+        modID_qq = derivs.dmod_dqq;
+        modID_qdqd = derivs.dmod_dvv;
+        modID_qdq  = derivs.dmod_dqv';
+        dtau_dq_mid2nd  = derivs.dtau_dq;
+        dtau_dqd_mid2nd = derivs.dtau_dv;
+        
         [~, ~, ~, modFD_qq, modFD_qdqd, modFD_qdq, modFD_tauq] = modFD_second_derivatives( model, q, qd, tau, lambda );
         
         modFD_qq_cs   = complexStepJacobian( @(x) outputSelect(1,@modFD_derivatives,model,x,qd,tau,lambda),q );

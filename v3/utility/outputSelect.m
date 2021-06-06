@@ -8,7 +8,7 @@ function out = outputSelect(varargin)
     eval_str = [eval_str(1:end-1) ')'];
 
     assert(num <= 8,'requires num <= 8');
-        
+    
     if num ==1
         out = eval(eval_str);
     elseif num==2

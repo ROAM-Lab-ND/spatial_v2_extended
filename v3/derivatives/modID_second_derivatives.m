@@ -103,6 +103,9 @@ for i = 1:model.NB
   
 end
 
+grad_q = zeros(model.NV,1);
+grad_qd = zeros(model.NV,1);
+
 for i = model.NB:-1:1
    ii = model.vinds{i};
    z{i} = z{i} + crf(vJ{i})*h{i};

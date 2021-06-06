@@ -92,8 +92,13 @@ function checkDerivatives(model, desc)
         modID_qq = derivs.dmod_dqq;
         modID_qdqd = derivs.dmod_dvv;
         modID_qdq  = derivs.dmod_dqv';
+
+        dmod_dq_mid2nd  = derivs.dmod_dq;
+        dmod_dqd_mid2nd = derivs.dmod_dv;
+
         dtau_dq_mid2nd  = derivs.dtau_dq;
         dtau_dqd_mid2nd = derivs.dtau_dv;
+    
         
         [~, ~, ~, modFD_qq, modFD_qdqd, modFD_qdq, modFD_tauq] = modFD_second_derivatives( model, q, qd, tau, lambda );
         
@@ -130,6 +135,15 @@ function checkDerivatives(model, desc)
         checkValue('modFD_qdqd'  , modFD_qdqd    , modFD_qdqd_cs          ); % SO Partials of modID w.r.t. qd,qd
         checkValue('modFD_tauq'  , modFD_tauq    , modFD_tauq_cs           ); % SO Partials of modID w.r.t. tau,q
  
+        
+        disp('====================================');
+        checkValue('mod_q'   , dmod_dq_mid2nd    , dmodID_dq_cs           ); % SO Partials of modID w.r.t. qd,qd
+        checkValue('mod_qd'  , dmod_dqd_mid2nd   , dmodID_dqd_cs          ); % SO Partials of modID w.r.t. qd,qd
+
+        checkValue('ID_q'   , dtau_dq_mid2nd    , dtau_dq_cs           ); % SO Partials of modID w.r.t. qd,qd
+        checkValue('ID_qd'  , dtau_dqd_mid2nd   , dtau_dqd_cs          ); % SO Partials of modID w.r.t. qd,qd
+   
+    
     end
     
     fprintf('\n');

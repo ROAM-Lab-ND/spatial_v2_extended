@@ -9,9 +9,6 @@ end
 if sum(model.has_rotor) > 1
     error('ID_derivatives does not support rotors');
 end
-% if any( model.nv > 1)
-%     error('ID_derivatives only supports single-DoF joints');
-% end
 
 a_grav = get_gravity(model);
 IC = model.I;

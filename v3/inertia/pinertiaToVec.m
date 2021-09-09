@@ -17,6 +17,6 @@ function [ a ] = pinertiaToVec( J )
     E = J(1:3,1:3);
     Ibar = trace(E)*eye(3) - E;
     
-    a = inertiaMatToVec([Ibar skew(h) ; skew(h)' m*eye(3)]);
+    a = inertiaMatToVec([Ibar skew(h) ; skew(h).' m*eye(3)]);
 end
 

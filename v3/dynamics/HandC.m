@@ -96,13 +96,16 @@ for i = model.NB:-1:1
   end
 end
 
-% info.IC = IC;
-% info.fvp = fvp;
-% info.avp = avp;
-% info.Xup = Xup;
-% 
-% 
-% info.v = v;
-% info.Xup_rot = Xup_rot;
-% info.v_rot = v_rot;
+info.IC = IC;
+info.fvp = fvp;
+info.avp = avp;
+info.Xup = Xup;
+
+
+info.v = v;
+if sum(model.has_rotor) > 1
+    info.Xup_rotor = Xup_rotor;
+    info.v_rotor = v_rotor;
+end
+
 

@@ -1,4 +1,4 @@
-function  tau = ID( model, q, qd, qdd, f_ext )
+function  [tau, out] = ID( model, q, qd, qdd, f_ext )
 
 % ID  Inverse Dynamics via Recursive Newton-Euler Algorithm
 % ID(model,q,qd,qdd,f_ext) calculates the inverse dynamics of a kinematic
@@ -30,7 +30,8 @@ for i = 1:model.NB
     v{i} = Xup{i}*v{model.parent(i)} + vJ;
     a{i} = Xup{i}*a{model.parent(i)} + S{i}*qdd{i} + crm(v{i})*vJ;
   end
-  f{i} = model.I{i}*a{i} + crf(v{i})*model.I{i}*v{i};
+  h{i} = model.I{i}*v{i};
+  f{i} = model.I{i}*a{i} + crf(v{i})*h{i};
   
   % Extra data for rotors
   if model.has_rotor(i)
@@ -49,6 +50,8 @@ for i = 1:model.NB
   end
 end
 
+out.f0 = f;
+
 if nargin == 5
   f = apply_external_forces( model.parent, Xup, f, f_ext );
 end
@@ -60,7 +63,7 @@ for i = model.NB:-1:1
   p = model.parent(i);
   
   ii = model.vinds{i};
-  tau(ii) = S{i}' * f{i};
+  tau(ii) = S{i}.' * f{i};
   if p ~= 0
         f{p} = f{p} + Xup{i}.'*f{i} ;
   end
@@ -72,3 +75,10 @@ for i = model.NB:-1:1
       end
   end
 end
+
+out.Xup = Xup;
+out.v = v;
+out.h = h;
+out.a = a;
+out.f = f;
+out.tau = tau;

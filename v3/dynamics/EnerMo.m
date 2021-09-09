@@ -15,9 +15,9 @@ end
 
 [q, qd] = confVecToCell(model,q,qd);
 
-if sum(model.has_rotor) > 1
-    error('EnerMo does not support rotors');
-end
+% if sum(model.has_rotor) > 1
+%     error('EnerMo does not support rotors');
+% end
 
 
 for i = 1:model.NB
@@ -29,9 +29,23 @@ for i = 1:model.NB
   else
     v{i} = Xup{i}*v{model.parent(i)} + vJ;
   end
+  
   Ic{i} = model.I{i};
   hc{i} = Ic{i} * v{i};
-  KE(i) = 0.5 * v{i}' * hc{i};
+  KE(i) = 0.5 * v{i}.' * hc{i};
+  if model.has_rotor(i)
+      [ XJ_rotor, S_rotor{i} ] = jcalc( model.jtype_rotor{i}, q{i}*model.gr{i} );
+      S_rotor{i} = S_rotor{i} * model.gr{i};
+      vJ_rotor = S_rotor{i} * qd{i};
+      Xup_rotor{i} = XJ_rotor * model.Xrotor{i};
+      if model.parent(i) == 0
+          v_rotor{i} = vJ_rotor;
+      else
+          v_rotor{i} = Xup_rotor{i}*v{model.parent(i)} + vJ_rotor;
+      end
+      h_rotor{i} = model.I_rotor{i}*v_rotor{i};
+      KE(i) = KE(i) + 1/2*h_rotor{i}.'*v_rotor{i};
+  end
 end
 
 ret.Itot = q{1}(1)*0 + zeros(size(Ic{1}));
@@ -39,11 +53,20 @@ ret.htot = q{1}(1)*0 + zeros(size(hc{1}));
 
 for i = model.NB:-1:1
   if model.parent(i) ~= 0
-    Ic{model.parent(i)} = Ic{model.parent(i)} + Xup{i}'*Ic{i}*Xup{i};
-    hc{model.parent(i)} = hc{model.parent(i)} + Xup{i}'*hc{i};
+    Ic{model.parent(i)} = Ic{model.parent(i)} + Xup{i}.'*Ic{i}*Xup{i};
+    hc{model.parent(i)} = hc{model.parent(i)} + Xup{i}.'*hc{i};
+    
+      if model.has_rotor(i) % Modified backward pass
+          Ic{model.parent(i)} = Ic{model.parent(i)} + Xup_rotor{i}.'*model.I_rotor{i}*Xup_rotor{i};
+          hc{model.parent(i)} = hc{model.parent(i)} + Xup_rotor{i}.'* h_rotor{i};
+      end
   else
-    ret.Itot = ret.Itot + Xup{i}'*Ic{i}*Xup{i};
-    ret.htot = ret.htot + Xup{i}'*hc{i};
+    ret.Itot = ret.Itot + Xup{i}.'*Ic{i}*Xup{i};
+    ret.htot = ret.htot + Xup{i}.'*hc{i};
+    if model.has_rotor(i) % Modified backward pass
+        ret.Itot = ret.Itot + Xup_rotor{i}.'*model.I_rotor{i}*Xup_rotor{i};
+        ret.htot = ret.htot + Xup_rotor{i}.'* h_rotor{i};
+    end
   end
 end
 

@@ -76,9 +76,9 @@ function checkDynamics(model, desc)
         
 
         % Calculate dynamics quanitites
-        tau        = ID(model, q ,qd ,qdd);                    % Inverse dynamics
+        [tau, out] = ID(model, q ,qd ,qdd);                    % Inverse dynamics
         qdd_ABA    = FDab( model, q, qd, tau);                 % Forward dyanmics
-        [H, Cqd]   = HandC(model, q, qd);                      % Mass matrix and bias
+        [H, Cqd, info] = HandC(model, q, qd);                      % Mass matrix and bias
         [~, tau_g] = HandC(model, q, qd*0);                    % Gravity force
         Cqd        = Cqd-tau_g;                                % Coriolis force
         [C,Hdot,H2]= CoriolisMatrix( model, q, qd);            % Coriolis matrix
@@ -93,7 +93,22 @@ function checkDynamics(model, desc)
         checkValue('qdd'   , qdd    , qdd_ABA               ); % Forward dynamics
         checkValue('tau'   , tau    , H*qdd+C*qd+tau_g      ); % Inverse dynamics
         checkValue('tau_SL', tau_SL , H*qdd + C*qd_r + tau_g );% Slotine Li inv dyn
-
+        
+        
+        ret = EnerMo(model, q, qd);
+        
+        checkValue('Kin'     , ret.KE      , 1/2*qd'*H*qd   ); % Mass matrix output is correct
+       
+        if strcmp(model.jtype{1}, 'Fb')
+            X1 = out.Xup{1};
+            
+            checkValue('Itot'     , ret.Itot      , X1'*info.IC{1}*X1   ); % Mass matrix output is correct
+            checkValue('htot'     , ret.htot      , X1'*H(1:6,:)*qd);
+      
+        end
+        
+        
+        
         % Make sure that Hdot is correct (finite difference approximation)
 %         if symbol_type == 1
             dt = sqrt(eps);

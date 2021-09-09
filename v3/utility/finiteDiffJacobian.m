@@ -10,6 +10,6 @@ function J = finiteDiffJacobian(f, x, step)
     for ind = 1:m
        e = zeros(m,1);
        e(ind) = 1;
-       J(:,ind) = (f(x+e*step) - f0)/step;  
+       J(:,ind) = real(f(x+e*step) - f0)/step;  
     end
 end

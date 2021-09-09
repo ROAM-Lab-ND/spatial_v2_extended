@@ -1,3 +1,6 @@
 documentation
 *.m~
 v3/original
+v3/derivatives/old
+v3/sandbox
+v3/testing

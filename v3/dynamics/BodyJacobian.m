@@ -13,7 +13,7 @@ X = Xend;
 j = body_num;
 while j > 0
     [ XJ, S ] = jcalc( model.jtype{j}, q{j} );
-    jj = model.vinds(j);
+    jj = model.vinds{j};
     J(:, jj) = X * S;
     if model.parent(j) > 0
         X = X *  XJ * model.Xtree{ j };

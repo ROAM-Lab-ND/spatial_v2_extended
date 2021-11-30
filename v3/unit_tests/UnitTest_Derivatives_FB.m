@@ -52,8 +52,6 @@ function checkDerivatives(model, desc)
     % Check Christoffel
     newConfig = @(x) configurationAddition(model,q,x);
     
-    
-    
     dtau_dqd_cs = complexStepJacobian(@(x) ID(model, q ,x ,qdd), qd);
     dtau_dq_cs = complexStepJacobian(@(x) ID(model, newConfig(x) ,qd ,qdd), zeros(model.NV,1) );
     
@@ -96,6 +94,9 @@ function checkDerivatives(model, desc)
     
     dtau_dq_mid2nd  = derivs.dtau_dq;
     dtau_dqd_mid2nd = derivs.dtau_dv;
+    
+    
+%     Hbig  = multiComplexStepHessian(@(x) modID(model, newConfig(x(1:model.NV)) ,x(model.NV+1:end) ,qdd,lambda), [zeros(model.NV,1) ;qd] );
 
     [~, ~, ~, modFD_qq, modFD_qdqd, modFD_qdq, modFD_tauq] = modFD_second_derivatives( model, q, qd, tau, lambda );
 % 
@@ -157,7 +158,7 @@ function checkValue(name, v1, v2, tolerance)
     end
     value = norm(v1(:)-v2(:));
     fprintf('%10s \t %e\n',name,value);
-%     if value > tolerance
-%         error('%s is out of tolerance',name);
-%     end
+    if value > tolerance
+        error('%s is out of tolerance',name);
+    end
 end

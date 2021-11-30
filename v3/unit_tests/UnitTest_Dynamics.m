@@ -40,143 +40,128 @@ function checkDynamics(model, desc)
     fprintf('%s\n',desc);
     fprintf('====================================\n');
     
-%     for symbol_type = 1:2
-%         if symbol_type == 1
-            % Random inertial properties
-            for i = 1:model.NB
-                model.I{i} = inertiaVecToMat( rand(10,1) );
-                model.I_rotor{i} = inertiaVecToMat( rand(10,1) );
-            end
-            [a, a_rot] = getModelInertialParams(model);
+%     
+    % Random inertial properties
+    for i = 1:model.NB
+        model.I{i} = inertiaVecToMat( rand(10,1) );
+        model.I_rotor{i} = inertiaVecToMat( rand(10,1) );
+    end
+    [a, a_rot] = getModelInertialParams(model);
 
-            % Random configuration and velocity
-            q   = rand(model.NQ,1);
-            q   = normalizeConfVec(model, q); 
+    % Random configuration and velocity
+    q   = rand(model.NQ,1);
+    q   = normalizeConfVec(model, q); 
 
-            qd  = rand(model.NV,1);
-            qd_r= rand(model.NV,1);
-            qdd = rand(model.NV,1);
-            lambda=rand(model.NV,1);
-%         else
-%             % Random inertial properties
-%             for i = 1:model.NB
-%                 model.I{i} = inertiaVecToMat( SX.sym(['a' num2str(i)],[10 1]) );
-%                 model.I_rotor{i} = inertiaVecToMat( SX.sym(['ar' num2str(i)],[10 1])  );
-%             end
-%             [a, a_rot] = getModelInertialParams(model);
-% 
-%             % Random configuration and velocity
-%             q   = SX.sym('q',[model.NQ 1]);
-%             
-%             qd  = SX.sym('qd',[model.NV 1]);
-%             qd_r= SX.sym('qd_r',[model.NV 1]);
-%             qdd = SX.sym('qdd',[model.NV 1]);
-%             lambda=SX.sym('lambda',[model.NV 1]); 
-%         end
-        
+    qd  = rand(model.NV,1);
+    qd_r= rand(model.NV,1);
+    qdd = rand(model.NV,1);
+    lambda=rand(model.NV,1);
 
-        % Calculate dynamics quanitites
-        [tau, out] = ID(model, q ,qd ,qdd);                    % Inverse dynamics
-        qdd_ABA    = FDab( model, q, qd, tau);                 % Forward dyanmics
-        [H, Cqd, info] = HandC(model, q, qd);                      % Mass matrix and bias
-        [~, tau_g] = HandC(model, q, qd*0);                    % Gravity force
-        Cqd        = Cqd-tau_g;                                % Coriolis force
-        [C,Hdot,H2]= CoriolisMatrix( model, q, qd);            % Coriolis matrix
-        [Hqd, CTqd]= Hqd_and_CTqd( model, q , qd);             % Gen momentum and friend
-        tau_SL     = ID_SlotineLi( model, q, qd , qd_r, qdd);  % Slotine Li ID
+    % Calculate dynamics quanitites
+    [tau, out] = ID(model, q ,qd ,qdd);                    % Inverse dynamics
+    qdd_ABA    = FDab( model, q, qd, tau);                 % Forward dyanmics
+    [H, Cqd, info] = HandC(model, q, qd);                      % Mass matrix and bias
+    p          = H*qd;
+    [~, tau_g] = HandC(model, q, qd*0);                    % Gravity force
+    Cqd        = Cqd-tau_g;                                % Coriolis force
+    [C,Hdot,H2]= CoriolisMatrix( model, q, qd);            % Coriolis matrix
+    [Hqd, CTqd]= Hqd_and_CTqd( model, q , qd);             % Gen momentum and friend
+    tau_SL     = ID_SlotineLi( model, q, qd , qd_r, qdd);  % Slotine Li ID
+    [qdot, pdot] = HamiltonianDynamics(model,q,p,tau);
+    
+    checkValue('H'     , H      , H2                    ); % Mass matrix output is correct
+    checkValue('Hqd'   , H*qd   , Hqd                   ); % Generelized momentum
+    checkValue('CTqd'  , C'*qd  , CTqd                  ); % For generalized momentum obs
+    checkValue('Cqd'   , C*qd   , Cqd                   ); % Generalized Coriolis force
+    checkValue('Hdot'  , Hdot   , C+C'                  ); % Hdot -2C skew symmetric
+    checkValue('qdd'   , qdd    , qdd_ABA               ); % Forward dynamics
+    checkValue('tau'   , tau    , H*qdd+C*qd+tau_g      ); % Inverse dynamics
+    checkValue('tau_SL', tau_SL , H*qdd + C*qd_r + tau_g );% Slotine Li inv dyn
+    
+    checkValue('Ham_qd', qdot , qd );% Slotine Li inv dyn
+    
+    ret = EnerMo(model, q, qd);
 
-        checkValue('H'     , H      , H2                    ); % Mass matrix output is correct
-        checkValue('Hqd'   , H*qd   , Hqd                   ); % Generelized momentum
-        checkValue('CTqd'  , C'*qd  , CTqd                  ); % For generalized momentum obs
-        checkValue('Cqd'   , C*qd   , Cqd                   ); % Generalized Coriolis force
-        checkValue('Hdot'  , Hdot   , C+C'                  ); % Hdot -2C skew symmetric
-        checkValue('qdd'   , qdd    , qdd_ABA               ); % Forward dynamics
-        checkValue('tau'   , tau    , H*qdd+C*qd+tau_g      ); % Inverse dynamics
-        checkValue('tau_SL', tau_SL , H*qdd + C*qd_r + tau_g );% Slotine Li inv dyn
-        
-        
-        ret = EnerMo(model, q, qd);
-        
-        checkValue('Kin'     , ret.KE      , 1/2*qd'*H*qd   ); % Mass matrix output is correct
-       
-        if strcmp(model.jtype{1}, 'Fb')
-            X1 = out.Xup{1};
-            
-            checkValue('Itot'     , ret.Itot      , X1'*info.IC{1}*X1   ); % Mass matrix output is correct
-            checkValue('htot'     , ret.htot      , X1'*H(1:6,:)*qd);
-      
+    checkValue('Kin'     , ret.KE      , 1/2*qd'*H*qd   ); % Mass matrix output is correct
+
+    if strcmp(model.jtype{1}, 'Fb')
+        X1 = out.Xup{1};
+        checkValue('Itot'     , ret.Itot      , X1'*info.IC{1}*X1   ); % Mass matrix output is correct
+        checkValue('htot'     , ret.htot      , X1'*H(1:6,:)*qd);
+    end
+
+    % Make sure that Hdot is correct (complex step approximation)
+    dt = sqrt(eps)*1i;
+    q_new = configurationAddition(model,q,dt*qd);
+    %q_new = normalizeConfVec(model, q_new);
+    qd_new = qd + dt*qdd;
+    
+    [H_new, ~] = HandC(model, q_new, qd);
+    p_new = H_new*qd_new;
+    
+    Hdot_finite_difference = real( (H_new-H) / dt );
+    pdot_finite_difference = real( (p_new-p) / dt );
+    
+    checkValue('Hdot', Hdot , Hdot_finite_difference ); % Hdot
+    checkValue('pdot', pdot , pdot_finite_difference ); % Hdot
+    
+
+    if ~any(model.has_rotor)
+        Hinv = Hinverse(model, q);
+        checkValue('Hinv', Hinv , inv(H) );
+
+        out = modID(model,q,qd,qdd,lambda);
+        checkValue('modID',out, lambda'*tau);
+    end
+
+    % Check Christoffel
+    if ~any(model.nv > 1) && ~any(model.has_rotor)
+        Gamma = Christoffel(model,q);
+        C2 = 0*C;
+        for i = 1:model.NB
+            C2 = C2 + Gamma(:,:,i)*qd(i);
         end
-        
-        
-        
-        % Make sure that Hdot is correct (finite difference approximation)
-%         if symbol_type == 1
-            dt = sqrt(eps);
-            q_new = q+dt*configurationRates(model,q,qd);
-            q_new = normalizeConfVec(model, q_new);
-            [H_new, ~] = HandC(model, q_new, qd);
-            Hdot_finite_difference = (H_new-H)/dt;
-            checkValue('Hdot', Hdot , Hdot_finite_difference, 1e-4 ); % Hdot
-%         end
-
-
-        if ~any(model.has_rotor)
-            Hinv = Hinverse(model, q);
-            checkValue('Hinv', Hinv , inv(H) );
-
-            out = modID(model,q,qd,qdd,lambda);
-            checkValue('modID',out, lambda'*tau);
-        end
-
-        % Check Christoffel
-        if ~any(model.nv > 1) && ~any(model.has_rotor)
-            Gamma = Christoffel(model,q);
-            C2 = 0*C;
-            for i = 1:model.NB
-                C2 = C2 + Gamma(:,:,i)*qd(i);
-            end
-            Hpartial = H_derivatives(model,q);
-            Gamma2 = 0*Gamma;
-            Hdot2 = 0*Hdot;
-            for i = 1:model.NB
-                for j = 1:model.NB
-                    for k = 1:model.NB
-                        Gamma2(i,j,k) = 1/2* (Hpartial(i,j,k) + Hpartial(i,k,j) - Hpartial(j,k,i));
-                    end
+        Hpartial = H_derivatives(model,q);
+        Gamma2 = 0*Gamma;
+        Hdot2 = 0*Hdot;
+        for i = 1:model.NB
+            for j = 1:model.NB
+                for k = 1:model.NB
+                    Gamma2(i,j,k) = 1/2* (Hpartial(i,j,k) + Hpartial(i,k,j) - Hpartial(j,k,i));
                 end
-                Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
             end
-
-            checkValue('CGamma'  , C      , C2    ); % Christoffel
-            checkValue('Gamma'   , Gamma2 , Gamma ); % Christoffel
-            checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
+            Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
         end
 
-        % Regressors
-        [Y_Hqd, Y_CTqd, Y_Hqd_rot, Y_CTqd_rot]  ...
-                                  = Regressor_HqdandCTqd( model, q , qd);
-        [Y, Y_rot]                = RegressorClassical(model, q, qd, qdd);
-        [Y_SL, Y_SL_rot]          = RegressorSL(model, q, qd,qd_r, qdd);
-        [YH, Yg, YH_rot, Yg_rot]  = RegressorHandG(model, q);
+        checkValue('CGamma'  , C      , C2    ); % Christoffel
+        checkValue('Gamma'   , Gamma2 , Gamma ); % Christoffel
+        checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
+    end
 
-        if any(model.has_rotor)
-            checkValue('Y'   , Y*a    + Y_rot*a_rot    , tau    ); % Classical Regressor
-            checkValue('Y_SL', Y_SL*a + Y_SL_rot*a_rot , tau_SL ); % Slotine Li Regressor
-            checkValue('YH'  , YH*a   + YH_rot*a_rot   , H(:)   ); % Mass matrix regressor
-            checkValue('Yg'  , Yg*a   + Yg_rot*a_rot   , tau_g  ); % Gravity force regressor
-            checkValue('YHqd', Y_Hqd*a + Y_Hqd_rot*a_rot , H*qd ); % Indirect regressor
-            checkValue('YCTqd',Y_CTqd*a + Y_CTqd_rot*a_rot, C'*qd); % Indirect regressor
-        else
-            checkValue('Y'     , Y*a      , tau    ); % Classical Regressor
-            checkValue('Y_SL'  , Y_SL*a   , tau_SL ); % Slotine Li Regressor
-            checkValue('YH'    , YH*a     , H(:)   ); % Mass matrix regressor
-            checkValue('Yg'    , Yg*a     , tau_g  ); % Gravity force regressor
-            checkValue('Y_Hqd' , Y_Hqd*a  , H*qd   ); % Indirect regressor
-            checkValue('Y_CTqd', Y_CTqd*a , C'*qd  ); % Indirect regressor
-        end
+    % Regressors
+    [Y_Hqd, Y_CTqd, Y_Hqd_rot, Y_CTqd_rot]  ...
+                              = Regressor_HqdandCTqd( model, q , qd);
+    [Y, Y_rot]                = RegressorClassical(model, q, qd, qdd);
+    [Y_SL, Y_SL_rot]          = RegressorSL(model, q, qd,qd_r, qdd);
+    [YH, Yg, YH_rot, Yg_rot]  = RegressorHandG(model, q);
 
-        fprintf('\n');
-%     end
+    if any(model.has_rotor)
+        checkValue('Y'   , Y*a    + Y_rot*a_rot    , tau    ); % Classical Regressor
+        checkValue('Y_SL', Y_SL*a + Y_SL_rot*a_rot , tau_SL ); % Slotine Li Regressor
+        checkValue('YH'  , YH*a   + YH_rot*a_rot   , H(:)   ); % Mass matrix regressor
+        checkValue('Yg'  , Yg*a   + Yg_rot*a_rot   , tau_g  ); % Gravity force regressor
+        checkValue('YHqd', Y_Hqd*a + Y_Hqd_rot*a_rot , H*qd ); % Indirect regressor
+        checkValue('YCTqd',Y_CTqd*a + Y_CTqd_rot*a_rot, C'*qd); % Indirect regressor
+    else
+        checkValue('Y'     , Y*a      , tau    ); % Classical Regressor
+        checkValue('Y_SL'  , Y_SL*a   , tau_SL ); % Slotine Li Regressor
+        checkValue('YH'    , YH*a     , H(:)   ); % Mass matrix regressor
+        checkValue('Yg'    , Yg*a     , tau_g  ); % Gravity force regressor
+        checkValue('Y_Hqd' , Y_Hqd*a  , H*qd   ); % Indirect regressor
+        checkValue('Y_CTqd', Y_CTqd*a , C'*qd  ); % Indirect regressor
+    end
+
+    fprintf('\n');
 end
 
 function checkValue(name, v1, v2, tolerance)

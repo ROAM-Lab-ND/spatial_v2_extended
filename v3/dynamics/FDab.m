@@ -1,4 +1,4 @@
-function  qdd = FDab_rotor( model, q, qd, tau, f_ext )
+function  qdd = FDab( model, q, qd, tau, f_ext )
 
 % FDab  Forward Dynamics via Articulated-Body Algorithm
 % FDab(model,q,qd,tau,f_ext,grav_accn)  calculates the forward dynamics of

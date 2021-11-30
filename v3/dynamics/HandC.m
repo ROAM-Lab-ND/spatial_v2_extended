@@ -65,22 +65,22 @@ end
 for i = model.NB:-1:1
   fh = IC{i} * S{i};
   ii = model.vinds{i};
-  H(ii,ii) = S{i}' * fh;
-  C(ii,1) = S{i}' * fvp{i};
+  H(ii,ii) = S{i}.' * fh;
+  C(ii,1) = S{i}.' * fvp{i};
   
   fh = Xup{i}.'* fh;
   
   if model.has_rotor(i)
-      H(ii,ii) = H(ii,ii) + S_rotor{i}'* model.I_rotor{i}*S_rotor{i};
-      C(ii,1)  = C(ii,1)  + S_rotor{i}'*fvp_rotor{i};
-      fh = fh + Xup_rotor{i}'*model.I_rotor{i}*S_rotor{i};
+      H(ii,ii) = H(ii,ii) + S_rotor{i}.'* model.I_rotor{i}*S_rotor{i};
+      C(ii,1)  = C(ii,1)  + S_rotor{i}.'*fvp_rotor{i};
+      fh = fh + Xup_rotor{i}.'*model.I_rotor{i}*S_rotor{i};
   end
   
   j = i;
   while model.parent(j) > 0
     j = model.parent(j);
     jj = model.vinds{j};
-    H(jj,ii) = S{j}' * fh;
+    H(jj,ii) = S{j}.' * fh;
     H(ii,jj) = H(jj,ii).';
     fh = Xup{j}.' * fh;
   end

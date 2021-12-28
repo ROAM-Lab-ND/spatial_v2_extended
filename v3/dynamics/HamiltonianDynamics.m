@@ -48,9 +48,11 @@ for i = 1:model.NB
 end
 
 CTqd= q{1}(1)*0 + zeros(model.NV,1);
+q_dot = q{1}(1)*0 + zeros(model.NV,1);
 
 for i = model.NB:-1:1   
   ii = model.vinds{i};
+  q_dot(ii) = qd{i};
   CTqd(ii)= Sd{i}'* h{i};
   if model.parent(i) ~= 0
      p = model.parent(i);
@@ -66,4 +68,3 @@ for i = model.NB:-1:1
 end
 
 p_dot = CTqd + tau - tau_g;
-q_dot = cell2mat(qd);

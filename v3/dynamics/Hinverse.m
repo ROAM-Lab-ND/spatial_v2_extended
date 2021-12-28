@@ -35,8 +35,8 @@ end
 for i = model.NB:-1:1   
    ii = model.vinds{i};
    U{i} = IA{i}*S{i};
-   D{i} = S{i}'*U{i};
-   Hinv(ii,:) = -D{i}\S{i}'*F{i};  
+   D{i} = S{i}.'*U{i};
+   Hinv(ii,:) = -D{i}\S{i}.'*F{i};  
    Hinv(ii,ii) = Hinv(i,i) + inv(D{i});
    % Note: At this point, Hinv(i,:) is not equal to its final value.
    %       However, it does satisfy Hinv(i,:)*tau = D{i}\u{i} from usual ABA
@@ -44,10 +44,10 @@ for i = model.NB:-1:1
    p = model.parent(i);
    if p > 0   
       Fa = F{i} + U{i}*Hinv(ii,:);     % Bias force transmitted to predecessor
-      Ia = IA{i} - U{i}*(D{i}\U{i}'); % Articulated inertia transmitted to predeceesor
+      Ia = IA{i} - U{i}*(D{i}\U{i}.'); % Articulated inertia transmitted to predeceesor
       
-      F{p} = F{p} + Xup{i}'*Fa;
-      IA{p} = IA{p} + Xup{i}'*Ia*Xup{i};
+      F{p} = F{p} + Xup{i}.'*Fa;
+      IA{p} = IA{p} + Xup{i}.'*Ia*Xup{i};
    end
 end
 
@@ -56,7 +56,7 @@ for i = 1:model.NB
    p = model.parent(i);
    ii = model.vinds{i};
    if p > 0
-       Hinv(ii,:) = Hinv(ii,:) - D{i}\U{i}'*Xup{i}*P{p};
+       Hinv(ii,:) = Hinv(ii,:) - D{i}\U{i}.'*Xup{i}*P{p};
        P{i} = Xup{i}*P{p} + S{i}*Hinv(ii,:); 
    else
        P{i} = S{i}*Hinv(ii,:);

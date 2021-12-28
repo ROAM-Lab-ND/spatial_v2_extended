@@ -3,7 +3,7 @@ function  [A, info] = CMM( model, q)
 % Algo from Orin and Goswami (AURO)
 
 assert(~any( model.has_rotor ), 'Rotors not supported for CMM')
-assert(strcmp(model.jtype(1),'Fb'), 'First joint should be floating base');
+%assert(strcmp(model.jtype(1),'Fb'), 'First joint should be floating base');
 
 
 if ~isfield(model,'nq')
@@ -26,9 +26,9 @@ for i = model.NB:-1:1
   Xup{i} = XJ * model.Xtree{i}; 
   
   if model.parent(i) ~= 0
-    IC{model.parent(i)} = IC{model.parent(i)} + Xup{i}'*IC{i}*Xup{i};
+    IC{model.parent(i)} = IC{model.parent(i)} + Xup{i}.'*IC{i}*Xup{i};
   else
-      I0 = I0 + Xup{i}'*IC{i}*Xup{i};
+      I0 = I0 + Xup{i}.'*IC{i}*Xup{i};
   end
   
 end
@@ -46,7 +46,7 @@ for i = 1:model.NB
     end
     
     ii = model.vinds{i};
-    A(:,ii) = XiG{i}'*IC{i}*S{i};
+    A(:,ii) = XiG{i}.'*IC{i}*S{i};
 end
 info.XiG = XiG;
 info.IC = IC;

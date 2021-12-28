@@ -14,7 +14,7 @@ function new_q = configurationAddition(model,q,dq)
     if USE_MCX
         new_q = MultiComplex.zeros(model.NQ,1);
     else
-        new_q = zeros(model.NQ,1);
+        new_q = q{1}(1)*0 + zeros(model.NQ,1);
     end
     
     for i = 1:model.NB
@@ -84,7 +84,7 @@ function new_q = configurationAddition(model,q,dq)
     end
     if isreal(new_q)
         new_q = real(new_q);
-    else if ~USE_MCX || new_q.order() == 1
+    else if USE_MCX && new_q.order() == 1
         new_q = real(new_q) + imag(new_q)*1i;
     end
 end    

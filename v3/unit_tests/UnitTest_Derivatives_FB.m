@@ -8,7 +8,6 @@ N = 3;
 model = autoTree(N, 1.5, pi/3);
 checkDerivatives(model,'Floating Base No Rotors');
 
-
 function checkDerivatives(model, desc)
     fprintf('====================================\n');
     fprintf('%s\n',desc);
@@ -94,7 +93,12 @@ function checkDerivatives(model, desc)
     
     dtau_dq_mid2nd  = derivs.dtau_dq;
     dtau_dqd_mid2nd = derivs.dtau_dv;
-    
+%
+    derivs_ID_SO = ID_SO_derivatives(model, q, qd,qdd); 
+    ID_qq = derivs_ID_SO.d2tau_dq;
+    ID_qdqd = derivs_ID_SO.d2tau_dqd;
+    ID_qdq = derivs_ID_SO.d2tau_cross;
+    ID_qdd_q = derivs_ID_SO.dM_dq;
     
 %     Hbig  = multiComplexStepHessian(@(x) modID(model, newConfig(x(1:model.NV)) ,x(model.NV+1:end) ,qdd,lambda), [zeros(model.NV,1) ;qd] );
 
@@ -104,6 +108,10 @@ function checkDerivatives(model, desc)
     modFD_qdqd_cs = complexStepJacobian( @(x) outputSelect(2,@modFD_derivatives,model,q,x,tau,lambda),qd );
     modFD_qdq_cs  = complexStepJacobian( @(x) outputSelect(2,@modFD_derivatives,model,newConfig(x),qd,tau,lambda),0*qd );
     modFD_tauq_cs = complexStepJacobian( @(x) outputSelect(3,@modFD_derivatives,model,newConfig(x),qd,tau,lambda),0*qd );
+%   
+    [ID_qq_cs, ID_qdq_cs]     = complexStepHessian(@(x) ID_derivatives(model, newConfig(x) ,qd ,qdd) , zeros(model.NV,1));
+    [~, ID_qdqd_cs]           = complexStepHessian(@(x) ID_derivatives(model, q ,x ,qdd) , qd);
+    [ID_q_qdd_cs, ~]          = complexStepHessian(@(x) ID_derivatives(model, q ,qd ,x) , qdd);
 
     checkValue('ID_q'   , dtau_dq      , dtau_dq_cs   ); % Partials of ID w.r.t. q
     checkValue('ID_qd'  , dtau_dqd     , dtau_dqd_cs  ); % Partials of ID w.r.t. qd
@@ -145,7 +153,12 @@ function checkDerivatives(model, desc)
     checkValue('modFD_qq'    , modFD_qq      , modFD_qq_cs            ); % SO Partials of modID w.r.t. q,q
     checkValue('modFD_qdq'   , modFD_qdq     , modFD_qdq_cs           ); % SO Partials of modID w.r.t. qd,q
     checkValue('modFD_qdqd'  , modFD_qdqd    , modFD_qdqd_cs          ); % SO Partials of modID w.r.t. qd,qd
-    checkValue('modFD_tauq'  , modFD_tauq    , modFD_tauq_cs           ); % SO Partials of modID w.r.t. tau,q
+    checkValue('modFD_tauq'  , modFD_tauq    , modFD_tauq_cs           ); % SO Partials of modID w.r.t. tau,q%
+%
+    checkValue('ID_qq'       , ID_qq         , ID_qq_cs                ); % SO Partials of ID w.r.t. q,q
+    checkValue('ID_qdqd'     , ID_qdqd       , ID_qdqd_cs              ); % SO Partials of ID w.r.t. qd,qd
+    checkValue('ID_qdq'      , ID_qdq        , ID_qdq_cs               ); % SO Partials of ID w.r.t. qd,q
+    checkValue('ID_qdd_q'    , ID_qdd_q      , rotR(ID_q_qdd_cs)       ); % SO Partials of ID w.r.t. qdd,q
 
     fprintf('\n');
 end

@@ -95,7 +95,7 @@ function M = myCell2Mat(model,S)
 %     for i = 1:length(S)
 %         M(:,model.vinds{i}) = S{i};
 %     end
-M = cell2Mat(S);
+M = cell2mat(S);
 end
 
 

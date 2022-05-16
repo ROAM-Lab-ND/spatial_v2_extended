@@ -1,6 +1,10 @@
-function rpy = cayleyToRpy(c)
+function rpy = cayleyToRpy(c,n)
 
-rpy = rotToRpy( cayleyToRot(c) );
+if nargin == 1
+    n  = 1;
+end
+
+rpy = rotToRpy( cayleyToRot(c,n) );
 
 end
 

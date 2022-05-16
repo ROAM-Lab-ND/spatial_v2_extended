@@ -40,7 +40,7 @@ for i = 1:model.NB
   
   v{i} = v{i} + vJ{i};
   a{i} = a{i} + aJ{i};
-  IC{i} = Xup0{i}'*I{i}*Xup0{i};
+  IC{i} = Xup0{i}.'*I{i}*Xup0{i};
   
   BC{i} = 2*factorFunctions(IC{i},v{i});
   f{i}  =  IC{i}*a{i} + crf(v{i})*IC{i}*v{i};

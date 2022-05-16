@@ -2,7 +2,10 @@ function [J, evals, steps] = complexStepJacobian(f, x, step)
     if nargin == 2
         step = eps;
     end
-    n = length(f(x));
+    f0 = f(x);
+    f0_vec = f0(:);
+    
+    n = length(f0_vec);
     m = length(x);
     
     J = zeros(n,m);
@@ -10,8 +13,11 @@ function [J, evals, steps] = complexStepJacobian(f, x, step)
        e = zeros(m,1);
        e(ind) = 1;
        steps(:,ind) = x+1i*e*step;
-       evals(:,ind) = f(x+1i*e*step);
+       evals(:,ind) = reshape( f(x+1i*e*step), [], 1);
        
-       J(:,ind) = imag( f(x+1i*e*step))/step;  
+       J(:,ind) = imag( evals(:,ind) )/step;  
     end
+    
+    evals = reshape(evals, [size(f0) length(x)]);
+    J     = reshape(J, [size(f0) length(x)]);
 end

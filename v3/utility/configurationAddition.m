@@ -2,7 +2,7 @@ function new_q = configurationAddition(model,q,dq)
 
     USE_MCX = 0;
     
-    assert(USE_MCX == 0 , 'MCX Not Yet Supported');
+%    assert(USE_MCX == 0 , 'MCX Not Yet Supported');
 %     assert(1==2,'Not Yet Implemented')
     if ~isfield(model,'nq')
         model = postProcessModel(model);

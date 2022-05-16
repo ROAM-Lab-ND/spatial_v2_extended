@@ -49,10 +49,18 @@ end
 dtau_dq  = q{1}(1)*0 + zeros(model.NV,model.NV);
 dtau_dqd = q{1}(1)*0 + zeros(model.NV,model.NV);
 
-J  = cell2mat(S);
-Jd = cell2mat(Sd);
-Jdd= cell2mat(Sdd);
-Jj = cell2mat(Sj);
+J  = myCell2Mat(model,S);
+Jd = myCell2Mat(model,Sd);
+Jdd= myCell2Mat(model,Sdd);
+Jj = myCell2Mat(model,Sj);
+
+tmp1  = repmat(0*q{1}(1) , 6, model.NV);
+tmp2  = repmat(0*q{1}(1) , 6, model.NV);
+tmp3  = repmat(0*q{1}(1) , 6, model.NV);
+tmp4  = repmat(0*q{1}(1) , 6, model.NV);
+
+dtau_dq  = repmat(0*q{1}(1), model.NV,model.NV);
+dtau_dqd  = repmat(0*q{1}(1), model.NV,model.NV);
 
 for i = model.NB:-1:1
   ii = model.vinds{i};
@@ -77,4 +85,17 @@ for i = model.NB:-1:1
      f{p}  = f{p}  + f{i};
   end
 end
+
+end
+
+
+function M = myCell2Mat(model,S)
+%     import casadi.*
+%     M = SX.zeros(6,model.NV);
+%     for i = 1:length(S)
+%         M(:,model.vinds{i}) = S{i};
+%     end
+M = cell2Mat(S);
+end
+
 

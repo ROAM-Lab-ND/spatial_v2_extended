@@ -38,7 +38,8 @@ for i = 2:model.NB
     
     model.joint{i}.gearRatio{1} = 5; % first rotor
     model.joint{i}.gearRatio{2} = 2.4; % second rotor
-    model.joint{i}.beltRatio = 1.5;
+    model.joint{i}.beltRatio{1} = 1.5;
+    model.joint{i}.beltRatio{2} = 2.2;
     
 end
 model = model.postProcessModel();

@@ -25,15 +25,18 @@ classdef revolutePairAbsoluteWithRotors
             [XJ2 , S2 ] = jcalc( ['R' obj.jointAxis{2}] , q(2) );
            
             gr1 = obj.gearRatio{1};
-            qm1 = q(1)*gr1;
-            
             gr2 = obj.gearRatio{2};
-            B = obj.beltRatio;
+            b1  = obj.beltRatio{1};
+            b2  = obj.beltRatio{2};
             
-            qm2 = gr2*(B*q(2) + q(1));
+            n1 = gr1*b1;
+            n2 = gr2*b2;
             
-            [XR1 , Sr1 ] = jcalc( ['R' obj.rotorAxis{1}], qm1 );
-            [XR2 , Sr2 ] = jcalc( ['R' obj.rotorAxis{2}], qm2 );
+            qr1 = n1*q(1);
+            qr2 = n2*q(2) + gr2*b1*q(1);
+            
+            [XR1 , Sr1 ] = jcalc( ['R' obj.rotorAxis{1}], qr1 );
+            [XR2 , Sr2 ] = jcalc( ['R' obj.rotorAxis{2}], qr2 );
             
             X1p  = XJ1 * Xtree(1:6,:);
             Xr1p = XR1 * Xtree(7:12,:);
@@ -44,8 +47,8 @@ classdef revolutePairAbsoluteWithRotors
             
             z = zeros(6,1);
             S  = [S1            z; 
-                  Sr1*gr1       z;
-                  Sr2*gr2       Sr2*gr2*B;
+                  Sr1*n1        z;
+                  Sr2*b1*gr2    Sr2*n2;
                   X21*S1        S2
                   ];
               
@@ -61,12 +64,11 @@ classdef revolutePairAbsoluteWithRotors
                 Sr1d= crm(vr1)*Sr1;
                 Sr2d= crm(vr2)*Sr2;
                 
-                Sd  = [S1d       z; 
-                  Sr1d*gr1       z;
-                  Sr2d*gr2       Sr2d*gr2*B;
-                  X21*S1d        S2d
-                  ];
-              
+                Sd  = [ S1d           z; 
+                        Sr1d*n1       z;
+                        Sr2d*b1*gr2   Sr2d*n2;
+                        X21*S1d       S2d
+                      ];              
             end
         end
         

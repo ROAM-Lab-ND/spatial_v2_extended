@@ -21,7 +21,7 @@ classdef revoluteJointWithRotor
             Xup(1:6,:)   = XJ_link *Xup(1:6,:)  ;
             Xup(7:12 ,:) = XJ_rotor*Xup(7:12,:) ; 
             
-            S  = [S_link ; S_rotor];
+            S  = [S_link ; S_rotor*obj.gearRatio];
             if nargout > 2
                 v  = Xup*vp + S*qdot;
                 Sd = crm(v)*S;

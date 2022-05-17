@@ -14,58 +14,27 @@ end
 
 a_grav = get_gravity(model);
 p = model.parent;
+v = {};
+w = {};
+wd= {};
 
 for i = 1:model.NB
-  [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
-  vJ = S{i}*qd{i};
-  wJ = S{i}*qd_r{i};
-  Xup{i} = XJ * model.Xtree{i};
-  if p(i) == 0
-    v{i} = vJ;
-    w{i} = wJ;
-    wd{i}= Xup{i}*(-a_grav) + S{i} * qdd{i} + crm(v{i})*wJ;
-  else
-    v{i} = Xup{i}*v{p(i)} + vJ;
-    w{i} = Xup{i}*w{p(i)} + wJ;
-    wd{i}= Xup{i}*wd{p(i)} + S{i} * qdd{i} + crm(v{i})*wJ;
-  end
-  f{i} = model.I{i}*wd{i} + factorFunction(model.I{i}, v{i})*w{i};
   
-  % Extra data for rotors
-  if model.has_rotor(i)
-      [ XJ_rotor, S_rotor{i} ] = jcalc( model.jtype_rotor{i}, q{i}*model.gr{i} );
-      S_rotor{i} = S_rotor{i} * model.gr{i};
-      vJ_rotor = S_rotor{i} * qd{i};
-      wJ_rotor = S_rotor{i} * qd_r{i};
-       
-      Xup_rotor{i} = XJ_rotor * model.Xrotor{i};
-      if p(i) == 0
-          v_rotor{i} = vJ_rotor;
-          w_rotor{i} = wJ_rotor;
-          wd_rotor{i} = Xup_rotor{i}*(-a_grav) + S_rotor{i}*qdd{i};
-      else
-          v_rotor{i}  = Xup_rotor{i}*v{p(i)} + vJ_rotor;
-          w_rotor{i}  = Xup_rotor{i}*w{p(i)} + wJ_rotor;
-          wd_rotor{i} = Xup_rotor{i}*wd{p(i)} + S_rotor{i}*qdd{i} + crm(v_rotor{i})*wJ_rotor;
-      end
-      f_rotor{i} = model.I_rotor{i}*wd_rotor{i} + factorFunction(model.I_rotor{i}, v_rotor{i})*w_rotor{i};
-  end
- 
+  [Xup{i}, S{i}, Sd{i}, v{i}] = model.joint{i}.kinematics(q{i}, qd{i}, vp);
+  wp = getParentVariable(model, i, w);
+  wdp= getParentVariable(model, i, wd, -a_grav);
+  
+  v{i} = Xup{i}*vp + S{i}*qd{i};
+  w{i} = Xup{i}*wp + S{i}*qd_r{i};
+  wd{i}= Xup{i}*wdp + S{i} * qdd{i} + Sd{i}*qd_r{i};
+  f{i} = model.I{i}*wd{i} + factorFunction(model.I{i}, v{i})*w{i};
 end
 
 tau = q{1}(1)*0 + zeros(model.NV,1);
 for i = model.NB:-1:1
   ii = model.vinds{i};
   tau(ii) = S{i}' * f{i} ;
-  
   if p(i) ~= 0
     f{p(i)} = f{p(i)} + Xup{i}'*f{i} ;
-  end
-      
-  if model.has_rotor(i) % Modified backward pass
-      tau(ii) = tau(ii) + S_rotor{i}' * f_rotor{i};
-      if p(i) ~= 0
-        f{p(i)} = f{p(i)} +  Xup_rotor{i}'*f_rotor{i};
-      end   
   end
 end

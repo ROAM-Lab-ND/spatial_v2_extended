@@ -15,7 +15,13 @@ if length(v(:)) == 6 && size(v,2) == 1
 	      0    -v(6)  v(5)   0    -v(3)  v(2) ;
 	      v(6)  0    -v(4)   v(3)  0    -v(1) ;
 	     -v(5)  v(4)  0     -v(2)  v(1)  0 ];
-
+elseif mod( length(v(:)),6) == 0 && size(v,2) == 1
+    i = 1;
+    while i < length(v(:))
+        ii = i:i+5;
+        vcross(ii,ii) = crm( v(ii) );
+        i = i+6;
+    end
 elseif length(v(:)) == 3 && size(v,2) == 1
 
   vcross = [  0     0     0    ;

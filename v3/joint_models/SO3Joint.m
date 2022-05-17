@@ -1,15 +1,14 @@
-classdef revoluteJoint
+classdef SO3Joint
 
     properties
-        nv = {1}
-        nq = {1}
-        axis
+        nv = {3}
+        nq = {9}
         Xtree
     end
     
     methods        
         function [Xup, S, Sd, v] = kinematics(obj, q, qdot, vp)
-            [XJ , S ] = jcalc( obj.axis, q);            
+            [XJ , S ] = jcalc( 'SO3', q);            
             Xup = XJ*obj.Xtree;
             if nargout > 2
                 v  = Xup*vp + S*qdot;

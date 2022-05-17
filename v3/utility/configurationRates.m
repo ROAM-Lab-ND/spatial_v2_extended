@@ -1,10 +1,10 @@
 function dot_q = configurationRates(model,q,qd)
 
     if ~isfield(model,'nq')
-        model = postProcessModel(model);
+        model = model.postProcessModel();
     end
     if ~iscell(q)
-        [q, qd] = confVecToCell(model,q,qd);
+        [q, qd] = model.confVecToCell(q,qd);
     end
     
     dot_q = zeros(model.NQ,1);

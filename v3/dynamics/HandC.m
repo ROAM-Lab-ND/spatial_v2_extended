@@ -12,44 +12,25 @@ function  [H,C,info] = HandC( model, q, qd, f_ext )
 % external forces.  The format of f_ext is explained in the source code of
 % apply_external_forces.
 
-a_grav = get_gravity(model);
+a_grav = model.getGravity();
 
 if ~isfield(model,'nq')
-    model = postProcessModel(model);
+    model = model.postProcessModel();
 end
 if ~iscell(q) || ~iscell(qd)
     [q, qd] = confVecToCell(model,q,qd);
 end
 
+v = {};
+avp = {};
+
 for i = 1:model.NB
-  [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
-  vJ = S{i}*qd{i};
-  Xup{i} = XJ * model.Xtree{i};
-  if model.parent(i) == 0
-    v{i} = vJ;
-    avp{i} = Xup{i} * -a_grav;
-  else
-    v{i} = Xup{i}*v{model.parent(i)} + vJ;
-    avp{i} = Xup{i}*avp{model.parent(i)} + crm(v{i})*vJ;
-  end
-  fvp{i} = model.I{i}*avp{i} + crf(v{i})*model.I{i}*v{i};
+  vp    = getParentVariable(model, i, v);
+  avp_p = getParentVariable(model, i, avp, -a_grav);
   
-  % Extra data for rotors
-  if model.has_rotor(i)
-      [ XJ_rotor, S_rotor{i} ] = jcalc( model.jtype_rotor{i}, q{i}*model.gr{i} );
-      S_rotor{i} = S_rotor{i} * model.gr{i};
-      vJ_rotor = S_rotor{i} * qd{i};
-      Xup_rotor{i} = XJ_rotor * model.Xrotor{i};
-      if model.parent(i) == 0
-          v_rotor{i} = vJ_rotor;
-          avp_rotor{i} = Xup_rotor{i}*(-a_grav);
-      else
-          v_rotor{i} = Xup_rotor{i}*v{model.parent(i)} + vJ_rotor;
-          avp_rotor{i} = Xup_rotor{i}*avp{model.parent(i)} + crm(v_rotor{i})*vJ_rotor;
-      end
-      fvp_rotor{i} = model.I_rotor{i}*avp_rotor{i} + crf(v_rotor{i})*model.I_rotor{i}*v_rotor{i};
-  end
- 
+  [Xup{i}, S{i}, Sd{i}, v{i}] = model.joint{i}.kinematics(model.Xtree{i}, q{i}, qd{i}, vp);
+  avp{i} = Xup{i}*avp_p + Sd{i}*qd{i};
+  fvp{i} = model.I{i}*avp{i} + crf(v{i})*model.I{i}*v{i};
 end
 
 if nargin == 4
@@ -62,6 +43,7 @@ for i =1:model.NB
     IC{i} = q{1}(1)*0 + model.I{i};
 end
 
+p = model.parent;
 for i = model.NB:-1:1
   fh = IC{i} * S{i};
   ii = model.vinds{i};
@@ -69,30 +51,19 @@ for i = model.NB:-1:1
   C(ii,1) = S{i}.' * fvp{i};
   
   fh = Xup{i}.'* fh;
-  
-  if model.has_rotor(i)
-      H(ii,ii) = H(ii,ii) + S_rotor{i}.'* model.I_rotor{i}*S_rotor{i};
-      C(ii,1)  = C(ii,1)  + S_rotor{i}.'*fvp_rotor{i};
-      fh = fh + Xup_rotor{i}.'*model.I_rotor{i}*S_rotor{i};
-  end
-  
+   
   j = i;
-  while model.parent(j) > 0
-    j = model.parent(j);
+  while p(j) > 0
+    j = p(j);
     jj = model.vinds{j};
     H(jj,ii) = S{j}.' * fh;
     H(ii,jj) = H(jj,ii).';
     fh = Xup{j}.' * fh;
   end
   
-  if model.parent(i) ~= 0
-    IC{model.parent(i)} = IC{model.parent(i)} + Xup{i}.'*IC{i}*Xup{i};
-    fvp{model.parent(i)} = fvp{model.parent(i)} + Xup{i}.'*fvp{i};
-    
-    if model.has_rotor(i)
-        IC{model.parent(i)} = IC{model.parent(i)} + Xup_rotor{i}.'*model.I_rotor{i}*Xup_rotor{i};
-        fvp{model.parent(i)} = fvp{model.parent(i)} + Xup_rotor{i}.'* fvp_rotor{i};
-    end
+  if p(i) ~= 0
+    IC{p(i)}  = IC{p(i)} + Xup{i}.'*IC{i}*Xup{i};
+    fvp{p(i)} = fvp{p(i)} + Xup{i}.'*fvp{i};
   end
 end
 
@@ -100,12 +71,4 @@ info.IC = IC;
 info.fvp = fvp;
 info.avp = avp;
 info.Xup = Xup;
-
-
 info.v = v;
-if sum(model.has_rotor) > 1
-    info.Xup_rotor = Xup_rotor;
-    info.v_rotor = v_rotor;
-end
-
-

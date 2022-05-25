@@ -13,31 +13,22 @@ if ~isfield(model,'nq')
     model = postProcessModel(model);
 end
 
-if sum(model.has_rotor) > 1
-    error('modID does not support rotors');
-end
-
-a_grav = get_gravity(model);
+a_grav = model.getGravity(model);
 if ~iscell(q)
-    [q, qd, qdd, lambda] = confVecToCell(model,q,qd,qdd, lambda);
+    [q, qd, qdd, lambda] = model.confVecToCell(q,qd,qdd, lambda);
 end
 
 out=q{1}(1)*0 + 0;
+w = {};
+v = {};
+a = {};
+
 for i = 1:model.NB
-  [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
-  vJ = S{i}*qd{i};
-  wJ = S{i}*lambda{i};
-  
-  Xup{i} = XJ * model.Xtree{i};
-  if model.parent(i) == 0
-    v{i} = vJ;
-    w{i} = wJ;
-    a{i} = Xup{i}*(-a_grav) + S{i}*qdd{i};
-  else
-    v{i} = Xup{i}*v{model.parent(i)} + vJ;
-    w{i} = Xup{i}*w{model.parent(i)} + wJ;
-    a{i} = Xup{i}*a{model.parent(i)} + S{i}*qdd{i} + crm(v{i})*vJ;
-  end
+  vp = model.getParentVariable(i, v);
+  ap = model.getParentVariable(i, a, -a_grav);
+  wp = model.getParentVariable(i, w);
+  [Xup{i}, S{i}, Sd{i}, v{i}] = model.joint{i}.kinematics(model.Xtree{i}, q{i}, qd{i}, vp);
+  w{i} = Xup{i}*wp + S{i}*lambda{i};
+  a{i} = Xup{i}*ap + S{i}*qdd{i} + Sd{i}*qd{i};
   out = out + w{i}.'*(model.I{i}*a{i} + crf(v{i})*model.I{i}*v{i});
-  
 end

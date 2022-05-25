@@ -2,16 +2,16 @@ function  [A, info] = CMM( model, q)
 
 % Algo from Orin and Goswami (AURO)
 
-assert(~any( model.has_rotor ), 'Rotors not supported for CMM')
+%assert(~any( model.has_rotor ), 'Rotors not supported for CMM')
 %assert(strcmp(model.jtype(1),'Fb'), 'First joint should be floating base');
 
 
 if ~isfield(model,'nq')
-    model = postProcessModel(model);
+    model = model.postProcessModel();
 end
 
 if ~iscell(q)
-    [q] = confVecToCell(model,q);
+    [q] = model.confVecToCell(q);
 end
 
 
@@ -22,15 +22,14 @@ end
 I0 = q{1}(1)*0 + zeros(6,6);
 
 for i = model.NB:-1:1
-  [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
-  Xup{i} = XJ * model.Xtree{i}; 
+  [Xup{i}, S{i}] = model.joint{i}.kinematics(model.Xtree{i}, q{i}); 
+  
   
   if model.parent(i) ~= 0
     IC{model.parent(i)} = IC{model.parent(i)} + Xup{i}.'*IC{i}*Xup{i};
   else
       I0 = I0 + Xup{i}.'*IC{i}*Xup{i};
   end
-  
 end
 
 M  = I0(6,6); %Mass

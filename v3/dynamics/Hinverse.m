@@ -9,15 +9,11 @@ function  [Hinv] = Hinverse( model, q)
 % 
 
 if ~isfield(model,'nq')
-    model = postProcessModel(model);
+    model = model.postProcessModel();
 end
 if ~iscell(q)
-    [q] = confVecToCell(model,q);
+    [q] = model.confVecToCell(q);
 end
-if sum(model.has_rotor) > 1
-    error('Hinverse does not support rotors');
-end
-
 
 IA = model.I; % Cell array for Artiulated-Body Inertias
 F = repmat({q{1}(1)*0 + zeros(6,model.NV)},model.NV,1); % Satisfies F{i}*tau = pA{i} from usual ABA
@@ -27,8 +23,9 @@ Hinv = q{1}(1)*0 + zeros(model.NV); % Inerse of Mass Matrix
 
 % Outward Pass
 for i = 1:model.NB
-  [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
-  Xup{i} = XJ * model.Xtree{i};
+  [Xup{i}, S{i}] = model.joint{i}.kinematics(model.Xtree{i}, q{i});
+  F{i} = q{1}(1)*0 + zeros( model.joint{i}.bodies*6,  model.NV);
+  P{i} = q{1}(1)*0 + zeros( model.joint{i}.bodies*6,  model.NV);
 end
 
 % Inward Pass

@@ -70,3 +70,5 @@ eSkew = norm(Hdot-C-C')
 
 Hqdd = ID(model,q,qd*0,qdd); 
 eHqdd = norm(H*qdd-Hqdd) % Check mass matrix
+
+Hinv = Hinverse(model,q)

@@ -10,67 +10,38 @@ function  ret = EnerMo( model, q, qd )
 % zero.
 
 if ~isfield(model,'nq')
-    model = postProcessModel(model);
+    model = model.postProcessModel();
 end
 
-[q, qd] = confVecToCell(model,q,qd);
+[q, qd] = confVecToCell(q,qd);
 
-% if sum(model.has_rotor) > 1
-%     error('EnerMo does not support rotors');
-% end
-
+v = {};
 
 for i = 1:model.NB
-  [ XJ, S ] = jcalc( model.jtype{i}, q{i} );
-  vJ = S*qd{i};
-  Xup{i} = XJ * model.Xtree{i};
-  if model.parent(i) == 0
-    v{i} = vJ;
-  else
-    v{i} = Xup{i}*v{model.parent(i)} + vJ;
-  end
+  vp = model.getParentVariable(i, v);
+  [Xup{i}, S{i}, Sd{i}, v{i}] = model.joint{i}.kinematics(model.Xtree{i}, q{i}, qd{i}, vp); 
   
   Ic{i} = model.I{i};
   hc{i} = Ic{i} * v{i};
   KE(i) = 0.5 * v{i}.' * hc{i};
-  if model.has_rotor(i)
-      [ XJ_rotor, S_rotor{i} ] = jcalc( model.jtype_rotor{i}, q{i}*model.gr{i} );
-      S_rotor{i} = S_rotor{i} * model.gr{i};
-      vJ_rotor = S_rotor{i} * qd{i};
-      Xup_rotor{i} = XJ_rotor * model.Xrotor{i};
-      if model.parent(i) == 0
-          v_rotor{i} = vJ_rotor;
-      else
-          v_rotor{i} = Xup_rotor{i}*v{model.parent(i)} + vJ_rotor;
-      end
-      h_rotor{i} = model.I_rotor{i}*v_rotor{i};
-      KE(i) = KE(i) + 1/2*h_rotor{i}.'*v_rotor{i};
-  end
 end
 
 ret.Itot = q{1}(1)*0 + zeros(size(Ic{1}));
 ret.htot = q{1}(1)*0 + zeros(size(hc{1}));
 
 for i = model.NB:-1:1
-  if model.parent(i) ~= 0
-    Ic{model.parent(i)} = Ic{model.parent(i)} + Xup{i}.'*Ic{i}*Xup{i};
-    hc{model.parent(i)} = hc{model.parent(i)} + Xup{i}.'*hc{i};
-    
-      if model.has_rotor(i) % Modified backward pass
-          Ic{model.parent(i)} = Ic{model.parent(i)} + Xup_rotor{i}.'*model.I_rotor{i}*Xup_rotor{i};
-          hc{model.parent(i)} = hc{model.parent(i)} + Xup_rotor{i}.'* h_rotor{i};
-      end
+  p = model.parent(i);
+  
+  if p ~= 0
+    Ic{p} = Ic{p} + Xup{i}.'*Ic{i}*Xup{i};
+    hc{p} = hc{p} + Xup{i}.'*hc{i};
   else
     ret.Itot = ret.Itot + Xup{i}.'*Ic{i}*Xup{i};
     ret.htot = ret.htot + Xup{i}.'*hc{i};
-    if model.has_rotor(i) % Modified backward pass
-        ret.Itot = ret.Itot + Xup_rotor{i}.'*model.I_rotor{i}*Xup_rotor{i};
-        ret.htot = ret.htot + Xup_rotor{i}.'* h_rotor{i};
-    end
   end
 end
 
-a_grav = get_gravity(model);
+a_grav = model.getGravity(model);
 
 if length(a_grav) == 6
   g = a_grav(4:6);			% 3D linear gravitational accn

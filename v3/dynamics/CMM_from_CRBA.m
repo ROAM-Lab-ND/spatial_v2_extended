@@ -5,11 +5,11 @@ function  [A] = CMM_from_CRBA( model, q)
 assert(strcmp(model.jtype(1),'Fb'), 'First joint should be floating base');
 
 if ~isfield(model,'nq')
-    model = postProcessModel(model);
+    model = model.postProcessModel();
 end
 qd = q(1)*0 + zeros(model.NV,1);
 if ~iscell(q)
-    [q,qd] = confVecToCell(model,q,qd);
+    [q,qd] = model.confVecToCell(q,qd);
 end
 
 

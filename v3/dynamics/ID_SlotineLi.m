@@ -1,4 +1,4 @@
-function  [tau,info] = ID_SlotineLI_rotoror( model, q, qd , qd_r, qdd, factorFunction)
+function  [tau,info] = ID_SlotineLI( model, q, qd , qd_r, qdd, factorFunction)
 
 if nargin == 5
     factorFunction = @(I,v)(factorFunctions(I,v));

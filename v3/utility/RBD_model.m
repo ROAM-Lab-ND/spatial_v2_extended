@@ -3,9 +3,10 @@ classdef RBD_model
     
     properties
         parent 
-        NB
+        NB % TODO - global change to NJ?
         NV
         NQ
+        N_RB % number of rigid bodies
         I 
         gravity
         appearance
@@ -17,6 +18,7 @@ classdef RBD_model
         ancestor_vinds
         subtree_vinds
         successor_vinds
+        param_inds
     end
     
     methods
@@ -51,17 +53,20 @@ classdef RBD_model
             end
         end
         
+        %%
         function model = postProcessModel(model)
             qi = 0;
             vi = 0;
-
+            model.N_RB = 0;
+            
             model.qinds = {};
             model.vinds = {};
             model.ancestors = {};
             model.ancestor_vinds = {};
             model.subtree_vinds = {};
+            model.param_inds = {};
 
-
+            % Connectivity processing
             for i = 1:model.NB
                 nqi = model.joint{i}.nq;
                 nvi = model.joint{i}.nv;
@@ -85,6 +90,7 @@ classdef RBD_model
                 model.successor_vinds{i} = [];
             end
 
+            % more connectivity processing
             for i = model.NB:-1:1
                 ii = model.vinds{i};
                 model.subtree_vinds{i} = [ii model.subtree_vinds{i}];
@@ -95,6 +101,8 @@ classdef RBD_model
                 end
             end
             
+            % Xtree initialization when previous group has more than one
+            % body
             for i = 1:model.NB
                if model.parent(i) > 0
                   p = model.parent(i);
@@ -108,15 +116,16 @@ classdef RBD_model
                      newXtree(:,inds) = model.Xtree{i};
                      model.Xtree{i} = newXtree;
                   end
-                  
                end
-                
+               
+               model.param_inds{i} = (model.N_RB*10+1): ((model.N_RB+model.joint{i}.bodies)*10);
+               model.N_RB = model.N_RB + model.joint{i}.bodies;
             end
-
             model.NV = vi;
             model.NQ = qi;
         end
        
+        %%
         function q = normalizeConfVec(model,q)
 
             if ~isfield(model,'nq')
@@ -138,6 +147,7 @@ classdef RBD_model
             q = cell2mat(q);
         end
         
+        %%
         function [q_cell, v_cell, vd_cell, vd2_cell] = confVecToCell(model,q,v,vd, vd2)
             qj = 0;
             vj = 0;

@@ -16,6 +16,13 @@ model.I     = org_model.I;
     
 
 model.joint{1} = floatingBaseJoint();
+model.I{1} = randomInertia();
+
+a = [];
+a(1:10,1) = inertiaMatToVec( model.I{1} );
+
+
+
 
 for i = 2:model.NB
     model.joint{i} = revolutePairAbsoluteWithRotors();
@@ -36,12 +43,18 @@ for i = 2:model.NB
     model.I{i}(13:18,13:18) = randomInertia(); % second rotor
     model.I{i}(19:24,19:24) = randomInertia(); % second link (foot)
     
+    
+    a(end+1 : end+10) = inertiaMatToVec(model.I{i}(1:6,1:6));
+    a(end+1 : end+10) = inertiaMatToVec(model.I{i}(7:12,7:12));
+    a(end+1 : end+10) = inertiaMatToVec(model.I{i}(13:18,13:18));
+    a(end+1 : end+10) = inertiaMatToVec(model.I{i}(19:24,19:24));
+    
     model.joint{i}.gearRatio{1} = 5; % first rotor
     model.joint{i}.gearRatio{2} = 2.4; % second rotor
     model.joint{i}.beltRatio{1} = 1.5;
     model.joint{i}.beltRatio{2} = 2.2;
-    
 end
+
 model = model.postProcessModel();
 
 q = rand(model.NQ,1); % using q's for the joints as relative link angles
@@ -54,6 +67,9 @@ tau = ID(model,q,qd,qdd); % tau gets weird. See notes.
 
 qdd2 = FDab(model,q,qd,tau);
 eqdd = norm(qdd-qdd2) % Check consistency of ABA / ID
+
+Y = RegressorClassical(model, q,qd,qdd);
+eY = norm( tau - Y*a)
 
 model.gravity = [0;0;0];
 Cqd = ID(model,q,qd,qdd*0);
@@ -71,4 +87,10 @@ eSkew = norm(Hdot-C-C')
 Hqdd = ID(model,q,qd*0,qdd); 
 eHqdd = norm(H*qdd-Hqdd) % Check mass matrix
 
-Hinv = Hinverse(model,q)
+Hinv = Hinverse(model,q);
+eHinv = norm(Hinv - inv(H))
+
+
+
+
+

@@ -16,8 +16,6 @@ model.jtype{3} = 'S';
 model = postProcessModel(model);
 checkDynamics(model,'Floating Base Spherical No Rotors');
 
-
-
 model = autoTree_rotor(N, 1.5, pi/3);
 model = postProcessModel(model);
 checkDynamics(model,'Fixed Base w/ Rotors');
@@ -31,8 +29,6 @@ model.jtype{3} = 'S';
 model.has_rotor(3) = 0;
 model = postProcessModel(model);
 checkDynamics(model,'Floating Base Spherical w/ Rotors');
-
-
 
 
 function checkDynamics(model, desc)
@@ -115,27 +111,38 @@ function checkDynamics(model, desc)
     end
 
     % Check Christoffel
-    if ~any(model.nv > 1) && ~any(model.has_rotor)
+    if  ~any(model.has_rotor) 
         Gamma = Christoffel(model,q);
+        
+        dC_dqd = complexStepJacobian( @(x) CoriolisMatrix( model, q, x) , 0*qd);
+        Gamma_cs = permute(dC_dqd,[1 3 2]);
+        checkValue('Gamma_cs'  , Gamma_cs      , Gamma ); % Christoffel
+        
+        
         C2 = 0*C;
-        for i = 1:model.NB
-            C2 = C2 + Gamma(:,:,i)*qd(i);
+        for i = 1:model.NV
+            C2 = C2 + squeeze(Gamma(:,i,:)*qd(i));
         end
-        Hpartial = H_derivatives(model,q);
-        Gamma2 = 0*Gamma;
-        Hdot2 = 0*Hdot;
-        for i = 1:model.NB
-            for j = 1:model.NB
-                for k = 1:model.NB
-                    Gamma2(i,j,k) = 1/2* (Hpartial(i,j,k) + Hpartial(i,k,j) - Hpartial(j,k,i));
-                end
-            end
-            Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
-        end
-
         checkValue('CGamma'  , C      , C2    ); % Christoffel
-        checkValue('Gamma'   , Gamma2 , Gamma ); % Christoffel
-        checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
+        
+        
+        if ~any(model.nv > 1) 
+            Hpartial = H_derivatives(model,q);
+            Gamma2 = 0*Gamma;
+            Hdot2 = 0*Hdot;
+            for i = 1:model.NB
+                for j = 1:model.NB
+                    for k = 1:model.NB
+                        Gamma2(i,j,k) = 1/2* (Hpartial(i,j,k) + Hpartial(i,k,j) - Hpartial(j,k,i));
+                    end
+                end
+                Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
+            end
+            
+            checkValue('Gamma'   , Gamma2 , Gamma ); % Christoffel
+            checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
+        end
+        
     end
 
     % Regressors

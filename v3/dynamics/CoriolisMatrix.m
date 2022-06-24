@@ -56,57 +56,57 @@ for j = model.NB:-1:1
    
     f1 = IC{j} * Sdot{j} + BC{j} * S{j};
     f2 = IC{j} * S{j};
-    f3 = BC{j}' * S{j};
+    f3 = BC{j}.' * S{j};
     
-    C(jj,jj) = S{j}' * f1;
-    H(jj,jj) = S{j}' * f2;
-    Hdot(jj,jj) = Sdot{j}'*f2 + S{j}'*(f1 + f3);
+    C(jj,jj) = S{j}.' * f1;
+    H(jj,jj) = S{j}.' * f2;
+    Hdot(jj,jj) = Sdot{j}.'*f2 + S{j}.'*(f1 + f3);
     
-    f1 = Xup{j}'*f1;
-    f2 = Xup{j}'*f2;
-    f3 = Xup{j}'*f3;
+    f1 = Xup{j}.'*f1;
+    f2 = Xup{j}.'*f2;
+    f3 = Xup{j}.'*f3;
     
     if model.has_rotor(j)
-        f1_rotor = I_rotor{j} * Sdot_rotor{j} + B_rotor{j} * S_rotor{j};
-        f2_rotor = I_rotor{j} * S_rotor{j};
-        f3_rotor = B_rotor{j}' * S_rotor{j};
+        f1_rotor = I_rotor{j}   * Sdot_rotor{j} + B_rotor{j} * S_rotor{j};
+        f2_rotor = I_rotor{j}   * S_rotor{j};
+        f3_rotor = B_rotor{j}.' * S_rotor{j};
         
-        C(jj,jj) = C(jj,jj) + S_rotor{j}' * f1_rotor;
-        H(jj,jj) = H(jj,jj) + S_rotor{j}' * f2_rotor;
-        Hdot(jj,jj) = Hdot(jj,jj) + Sdot_rotor{j}'*f2_rotor + S_rotor{j}'*(f1_rotor + f3_rotor);
+        C(jj,jj) = C(jj,jj) + S_rotor{j}.' * f1_rotor;
+        H(jj,jj) = H(jj,jj) + S_rotor{j}.' * f2_rotor;
+        Hdot(jj,jj) = Hdot(jj,jj) + Sdot_rotor{j}.'*f2_rotor + S_rotor{j}.'*(f1_rotor + f3_rotor);
     
-        f1 = f1 + Xup_rotor{j}'*f1_rotor;
-        f2 = f2 + Xup_rotor{j}'*f2_rotor;
-        f3 = f3 + Xup_rotor{j}'*f3_rotor;
+        f1 = f1 + Xup_rotor{j}.'*f1_rotor;
+        f2 = f2 + Xup_rotor{j}.'*f2_rotor;
+        f3 = f3 + Xup_rotor{j}.'*f3_rotor;
     end
     
     i = model.parent(j);
     while i > 0
         ii = model.vinds{i};
         
-        C(ii,jj) = S{i}' * f1;
-        C(jj,ii) = ( Sdot{i}'*f2 + S{i}'*f3 )';
+        C(ii,jj) = S{i}.' * f1;
+        C(jj,ii) = ( Sdot{i}.'*f2 + S{i}.'*f3 ).';
         
-        H(ii,jj) = S{i}' * f2;
-        H(jj,ii) = H(ii,jj)';
+        H(ii,jj) = S{i}.' * f2;
+        H(jj,ii) = H(ii,jj).';
         
-        Hdot(ii,jj) = Sdot{i}'*f2 + S{i}'*(f1 + f3);
-        Hdot(jj,ii) = Hdot(ii,jj)';
+        Hdot(ii,jj) = Sdot{i}.'*f2 + S{i}.'*(f1 + f3);
+        Hdot(jj,ii) = Hdot(ii,jj).';
         
-        f1 = Xup{i}' * f1;
-        f2 = Xup{i}' * f2;
-        f3 = Xup{i}' * f3;
+        f1 = Xup{i}.' * f1;
+        f2 = Xup{i}.' * f2;
+        f3 = Xup{i}.' * f3;
         i = model.parent(i);
     end    
     if model.parent(j) ~= 0
         p = model.parent(j);
         
-        IC{p} = IC{p} + Xup{j}'*IC{j}*Xup{j};
-        BC{p} = BC{p} + Xup{j}'*BC{j}*Xup{j};
+        IC{p} = IC{p} + Xup{j}.'*IC{j}*Xup{j};
+        BC{p} = BC{p} + Xup{j}.'*BC{j}*Xup{j};
         
         if model.has_rotor(j)
-            IC{p} = IC{p} + Xup_rotor{j}'*I_rotor{j}*Xup_rotor{j};
-            BC{p} = BC{p} + Xup_rotor{j}'*B_rotor{j}*Xup_rotor{j};
+            IC{p} = IC{p} + Xup_rotor{j}.'*I_rotor{j}*Xup_rotor{j};
+            BC{p} = BC{p} + Xup_rotor{j}.'*B_rotor{j}*Xup_rotor{j};
         end
     end 
 end

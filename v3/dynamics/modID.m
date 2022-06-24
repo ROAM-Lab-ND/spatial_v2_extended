@@ -13,7 +13,7 @@ if ~isfield(model,'nq')
     model = postProcessModel(model);
 end
 
-a_grav = model.getGravity(model);
+a_grav = model.getGravity();
 if ~iscell(q)
     [q, qd, qdd, lambda] = model.confVecToCell(q,qd,qdd, lambda);
 end

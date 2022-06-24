@@ -13,7 +13,7 @@ if ~isfield(model,'nq')
     model = model.postProcessModel();
 end
 
-[q, qd] = confVecToCell(q,qd);
+[q, qd] = model.confVecToCell(q,qd);
 
 v = {};
 
@@ -41,7 +41,7 @@ for i = model.NB:-1:1
   end
 end
 
-a_grav = model.getGravity(model);
+a_grav = model.getGravity();
 
 if length(a_grav) == 6
   g = a_grav(4:6);			% 3D linear gravitational accn

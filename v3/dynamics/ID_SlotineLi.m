@@ -23,7 +23,7 @@ for i = 1:model.NB
   wp = getParentVariable(model, i, w);
   wdp= getParentVariable(model, i, wd, -a_grav);
   
-  [Xup{i}, S{i}, Sd{i}, v{i}] = model.joint{i}.kinematics(q{i}, qd{i}, vp);
+  [Xup{i}, S{i}, Sd{i}, v{i}] = model.joint{i}.kinematics(model.Xtree{i}, q{i}, qd{i}, vp);
   
   w{i} = Xup{i}*wp + S{i}*qd_r{i};
   wd{i}= Xup{i}*wdp + S{i} * qdd{i} + Sd{i}*qd_r{i};

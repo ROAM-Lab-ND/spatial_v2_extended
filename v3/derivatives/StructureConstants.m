@@ -1,5 +1,12 @@
 function [s_first_kind, s_second_kind] = StructureConstants(model, q)
-    
+
+    if ~isfield(model,'nq')
+        model = model.postProcessModel();
+    end
+    if ~iscell(q)
+        [q] = confVecToCell(model,q);
+    end
+
     % S_second_kind(i,j,k) = X^i \cdot [X_j , X_k]
     % (i.e., the i-th component of the lie bracket between vector fields
     % X_j and X_k)
@@ -8,12 +15,19 @@ function [s_first_kind, s_second_kind] = StructureConstants(model, q)
     % S_first_kind(i,j,k) = H_{i m} S_second_kind(m, j, k)
     s_first_kind  = zeros( model.NV, model.NV, model.NV );
     
+    supported_joints = {'revoluteJoint','floatingBaseJoint','revoluteJointWithRotor'};
+    
+    
     for joint_num = 1:model.NB
+       assert( any(strcmp(supported_joints, class(model.joint{joint_num}))), ...
+                   ['Joint Type Unsupported In StructureConstants: ' class(model.joint{joint_num})])
+        
        joint_inds =  model.vinds{joint_num} ;
        dofs = length( joint_inds );
        qj = rand( length(model.qinds{joint_num} ) ,1);
 
-       [~, S] = jcalc(model.jtype{joint_num}, qj);
+       [~, S] = model.joint{joint_num}.kinematics(model.Xtree{joint_num}, q{joint_num});
+       
        [Q, ~] = qr(S);
        Psi = inv([S Q(:,dofs+1:end)])';
        Psi = Psi(:,1:dofs);
@@ -28,7 +42,7 @@ function [s_first_kind, s_second_kind] = StructureConstants(model, q)
            end
        end
     end
-    H = HandC(model,q,zeros(model.NV,1));
+    H = HandC(model,cell2mat(q),zeros(model.NV,1));
     for i = 1:model.NV
        s_first_kind(:,:,i) = H*s_second_kind(:,:,i); % index lowering 
     end

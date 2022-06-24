@@ -5,10 +5,10 @@ function new_q = configurationAddition(model,q,dq)
 %    assert(USE_MCX == 0 , 'MCX Not Yet Supported');
 %     assert(1==2,'Not Yet Implemented')
     if ~isfield(model,'nq')
-        model = postProcessModel(model);
+        model = model.postProcessModel();
     end
     if ~iscell(q)
-        [q, dq] = confVecToCell(model,q,dq);
+        [q, dq] = model.confVecToCell(q,dq);
     end
     
     if USE_MCX
@@ -20,8 +20,8 @@ function new_q = configurationAddition(model,q,dq)
     for i = 1:model.NB
         ii = model.qinds{i};
         
-        switch model.jtype{i}
-            case {'Fb'}
+        switch class(model.joint{i})
+            case {'floatingBaseJoint'}
                 X = jcalc('Fb',q{i});
                 v = dq{i}(4:6);
                 Rup = X(1:3,1:3);
@@ -42,7 +42,7 @@ function new_q = configurationAddition(model,q,dq)
                 p_new  = q{i}(5:7) + Rup.'*v;
                 new_q(ii) = [qt_new ; p_new];
                 
-            case {'S'}
+            case {'sphericalJoint'}
                 
                 tang = quatR([0 ; dq{i}/2 ]);
                 if ~isreal(dq{i})
@@ -54,7 +54,7 @@ function new_q = configurationAddition(model,q,dq)
                 else
                     new_q(ii) = expm(tang)* q{i};
                 end
-            case {'SO3'}
+            case {'SO3Joint'}
                 R = reshape(q{i},[3 3]);
                 so3 = -skew(dq{i});
                 if ~isreal(dq{i})
@@ -66,7 +66,7 @@ function new_q = configurationAddition(model,q,dq)
                 else
                     new_q(ii) = reshape(expm(so3) * R, [9 1]);
                 end
-            case {'SE3'}
+            case {'SE3Joint'}
                 Tup = reshape(q{i},[4 4]);
                 se3 = -vecTose3(dq{i});
                 if ~isreal(dq{i})

@@ -1,25 +1,24 @@
 function  [H_derivatives] = H_derivatives( model, q)
 
 if ~isfield(model,'nq')
-    model = postProcessModel(model);
+    model = model.postProcessModel();
 end
 if ~iscell(q)
     [q] = confVecToCell(model,q);
 end
 
-if sum(model.has_rotor) > 1
-    error('H_diff does not support rotors');
-end
-
 for i = 1:model.NB
-  [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
-  Xup{i} = XJ * model.Xtree{i};
+  [Xup{i}, S{i}] = model.joint{i}.kinematics(model.Xtree{i}, q{i});
 end
 IC = model.I;				% composite inertia calculation
 
 H_derivatives = repmat(0*q{1}(1),model.NV,model.NV,model.NV);
 
+supported_joints = {'revoluteJoint','floatingBaseJoint','revoluteJointWithRotor'};
+
 for k = model.NB:-1:1
+    assert( any(strcmp(supported_joints, class(model.joint{k}))), ...
+                   ['Joint Type Unsupported In H_derivatives: ' class(model.joint{k})])
     for k_ind = 1:length(model.vinds{k})
         kk = model.vinds{k}(k_ind);
         sk = S{k}(:,k_ind);

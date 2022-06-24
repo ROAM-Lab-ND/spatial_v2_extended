@@ -20,10 +20,6 @@ model.I{1} = randomInertia();
 
 a = [];
 a(1:10,1) = inertiaMatToVec( model.I{1} );
-
-
-
-
 for i = 2:model.NB
     model.joint{i} = revolutePairAbsoluteWithRotors();
     model.joint{i}.jointAxis{1} = jointAxes{i};  % x, y, or z
@@ -49,10 +45,10 @@ for i = 2:model.NB
     a(end+1 : end+10) = inertiaMatToVec(model.I{i}(13:18,13:18));
     a(end+1 : end+10) = inertiaMatToVec(model.I{i}(19:24,19:24));
     
-    model.joint{i}.gearRatio{1} = 5; % first rotor
-    model.joint{i}.gearRatio{2} = 2.4; % second rotor
-    model.joint{i}.beltRatio{1} = 1.5;
-    model.joint{i}.beltRatio{2} = 2.2;
+    model.joint{i}.gearRatio{1} = rand()*5; % first rotor
+    model.joint{i}.gearRatio{2} = rand()*5; % second rotor
+    model.joint{i}.beltRatio{1} = rand()*5;
+    model.joint{i}.beltRatio{2} = rand()*5;
 end
 
 model = model.postProcessModel();
@@ -61,6 +57,7 @@ q = rand(model.NQ,1); % using q's for the joints as relative link angles
 
 q = model.normalizeConfVec(q);
 qd = rand(model.NV,1);
+qdr = rand(model.NV,1);
 qdd = rand(model.NV,1);
 
 tau = ID(model,q,qd,qdd); % tau gets weird. See notes.
@@ -70,6 +67,13 @@ eqdd = norm(qdd-qdd2) % Check consistency of ABA / ID
 
 Y = RegressorClassical(model, q,qd,qdd);
 eY = norm( tau - Y*a)
+
+
+Y_sl = RegressorSL(model, q, qd, qdr, qdd);
+tau_sl = ID_SlotineLi(model, q, qd, qdr,qdd);
+
+eY_SL = norm( tau_sl - Y_sl*a)
+
 
 model.gravity = [0;0;0];
 Cqd = ID(model,q,qd,qdd*0);
@@ -89,6 +93,8 @@ eHqdd = norm(H*qdd-Hqdd) % Check mass matrix
 
 Hinv = Hinverse(model,q);
 eHinv = norm(Hinv - inv(H))
+
+
 
 
 

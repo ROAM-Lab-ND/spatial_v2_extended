@@ -6,25 +6,18 @@ end
 if ~iscell(q) || ~iscell(qd)
     [q] = confVecToCell(model,q);
 end
-if sum(model.has_rotor) > 1
-    error('Christoffel does not support rotors (yet)');
-end
+supported_joints = {'revoluteJoint','floatingBaseJoint','revoluteJointWithRotor'};
+
 
 for i = 1:model.NB
-    IC{i} = q{1}(1)*0 + model.I{i};
-    [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
-    Xup{i} = XJ * model.Xtree{i};
-    if model.parent(i) == 0
-        Xup0{i} = Xup{i};
-    else
-        Xup0{i} = Xup{i}*Xup0{ model.parent(i) };
-    end
-    
-    S{i} = Xup0{i}\S{i};
-    IC{i} =  Xup0{i}.'*IC{i}*Xup0{i};
+    [Xup{i}, S{i}] = model.joint{i}.kinematics(model.Xtree{i}, q{i});
+    IC{i} = q{1}(1)*0 + model.I{i}; 
+    S{i}  = S{i};
+    IC{i} = IC{i};
 end
 
 for k = model.NB:-1:1
+    assert( any(strcmp(supported_joints, class(model.joint{k}))), ['Joint Type Unsupported In Christoffel: ' class(model.joint{k})])  
     for k_ind = 1:length( model.vinds{k} )
         kk = model.vinds{k}(k_ind);
         sk = S{k}(:,k_ind);
@@ -54,15 +47,19 @@ for k = model.NB:-1:1
                 Gamma(kk,jj,ii) = ( -S{i}.'*f2).';
                end
                
+               f1 = Xup{i}.'* f1;
+               f2 = Xup{i}.'* f2;
+
                i = model.parent(i);
            end
+           B = Xup{j}.'*B*Xup{j};
            j = model.parent(j);
         end
     end
     
     if model.parent(k) > 0
         p = model.parent(k);
-        IC{p}= IC{p} + IC{k};
+        IC{p}= IC{p} + Xup{k}.'* IC{k} * Xup{k};
     end
 end
 

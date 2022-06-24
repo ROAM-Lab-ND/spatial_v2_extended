@@ -1,5 +1,7 @@
 # spatial_v2_extended
 
+This package directly builds upon Roy Featherstone's [spatial_v2 library](http://royfeatherstone.org/spatial/v2/) and his closely associated [book](https://link.springer.com/book/10.1007/978-1-4899-7560-7).
+
 New algorithms include:
 * Methods to compute the Coriolis matrix ([link](https://github.com/ROAM-Lab-ND/spatial_v2_extended/blob/main/v3/dynamics/CoriolisMatrix.m)) [all systems] and Christoffel symbols ([link](https://github.com/ROAM-Lab-ND/spatial_v2_extended/blob/main/v3/dynamics/Christoffel.m)) [Single DoF joints only] ([paper](http://dx.doi.org/10.1115/1.4051169))
 * Methods for assessing identifiability ([link](https://github.com/ROAM-Lab-ND/spatial_v2_extended/tree/main/v3/identifiability), [paper](https://arxiv.org/abs/1711.03896)) 

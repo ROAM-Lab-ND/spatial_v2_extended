@@ -40,19 +40,20 @@ for j = model.NB:-1:1
     f1 = Xup{j}.'*f1;
     f2 = Xup{j}.'*f2;
     f3 = Xup{j}.'*f3;
+
     
     i = model.parent(j);
     while i > 0
         ii = model.vinds{i};
         
         C(ii,jj) = S{i}.' * f1;
-        C(jj,ii) = ( Sdot{i}.'*f2 + S{i}.'*f3 )';
+        C(jj,ii) = ( Sdot{i}.'*f2 + S{i}.'*f3 ).';
         
         H(ii,jj) = S{i}.' * f2;
         H(jj,ii) = H(ii,jj).';
         
         Hdot(ii,jj) = Sdot{i}.'*f2 + S{i}.'*(f1 + f3);
-        Hdot(jj,ii) = Hdot(ii,jj)';
+        Hdot(jj,ii) = Hdot(ii,jj).';
         
         f1 = Xup{i}.' * f1;
         f2 = Xup{i}.' * f2;
@@ -64,6 +65,5 @@ for j = model.NB:-1:1
         
         IC{p} = IC{p} + Xup{j}.'*IC{j}*Xup{j};
         BC{p} = BC{p} + Xup{j}.'*BC{j}*Xup{j};
-        
     end 
 end

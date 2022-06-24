@@ -16,8 +16,6 @@ model.jtype{3} = 'S';
 model = postProcessModel(model);
 checkDynamics(model,'Floating Base Spherical No Rotors');
 
-
-
 model = autoTree_rotor(N, 1.5, pi/3);
 model = postProcessModel(model);
 checkDynamics(model,'Fixed Base w/ Rotors');
@@ -31,8 +29,6 @@ model.jtype{3} = 'S';
 model.has_rotor(3) = 0;
 model = postProcessModel(model);
 checkDynamics(model,'Floating Base Spherical w/ Rotors');
-
-
 
 
 function checkDynamics(model, desc)
@@ -115,26 +111,45 @@ function checkDynamics(model, desc)
     end
 
     % Check Christoffel
-    if ~any(model.nv > 1) && ~any(model.has_rotor)
+    if  ~any(model.has_rotor) 
         Gamma = Christoffel(model,q);
+        
+        dC_dqd = complexStepJacobian( @(x) CoriolisMatrix( model, q, x) , 0*qd);
+        Gamma_cs = permute(dC_dqd,[1 3 2]);
+        checkValue('Gam_cs'  , Gamma_cs      , Gamma ); % Christoffel
+        
         C2 = 0*C;
-        for i = 1:model.NB
-            C2 = C2 + Gamma(:,:,i)*qd(i);
+        for i = 1:model.NV
+            C2 = C2 + squeeze(Gamma(:,i,:)*qd(i));
         end
+        checkValue('CGamma'  , C      , C2    ); % Christo
+
+        newConfig = @(x) configurationAddition(model,q,x);
+        H_partial_cs = complexStepJacobian( @(x) HandC(model, newConfig(x),qd), 0*qd);
+
         Hpartial = H_derivatives(model,q);
-        Gamma2 = 0*Gamma;
-        Hdot2 = 0*Hdot;
-        for i = 1:model.NB
-            for j = 1:model.NB
-                for k = 1:model.NB
-                    Gamma2(i,j,k) = 1/2* (Hpartial(i,j,k) + Hpartial(i,k,j) - Hpartial(j,k,i));
+        checkValue('dH_cs'  , Hpartial      , H_partial_cs    ); % Christoffel
+
+        struc_const = StructureConstants(model,q);
+        
+        Gamma_via_kozul = 0*Gamma;
+        for i = 1:model.NV
+            for j = 1:model.NV
+                for k = 1:model.NV
+                    Gamma_via_kozul(i,j,k) = ...
+                           Hpartial(k,i,j) + Hpartial(j,i,k) - Hpartial(j,k,i) ...
+                           + struc_const(i,j,k) + struc_const(k,i,j) + struc_const(j,i,k);
                 end
             end
+        end
+        Gamma_via_kozul = Gamma_via_kozul/2;
+        
+        checkValue('Struc'    , Gamma_via_kozul   , Gamma ); % Christoffel
+        
+        Hdot2 = 0*Hdot;
+        for i = 1:model.NV
             Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
         end
-
-        checkValue('CGamma'  , C      , C2    ); % Christoffel
-        checkValue('Gamma'   , Gamma2 , Gamma ); % Christoffel
         checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
     end
 

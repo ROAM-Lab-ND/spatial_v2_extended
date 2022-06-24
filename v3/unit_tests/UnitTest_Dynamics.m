@@ -116,7 +116,7 @@ function checkDynamics(model, desc)
         
         dC_dqd = complexStepJacobian( @(x) CoriolisMatrix( model, q, x) , 0*qd);
         Gamma_cs = permute(dC_dqd,[1 3 2]);
-        checkValue('Gamma_cs'  , Gamma_cs      , Gamma ); % Christoffel
+        checkValue('Gam_cs'  , Gamma_cs      , Gamma ); % Christoffel
         
         C2 = 0*C;
         for i = 1:model.NV
@@ -128,8 +128,24 @@ function checkDynamics(model, desc)
         H_partial_cs = complexStepJacobian( @(x) HandC(model, newConfig(x),qd), 0*qd);
 
         Hpartial = H_derivatives(model,q);
-        checkValue('H_partial_cs'  , Hpartial      , H_partial_cs    ); % Christoffel
+        checkValue('dH_cs'  , Hpartial      , H_partial_cs    ); % Christoffel
 
+        struc_const = StructureConstants(model,q);
+        
+        Gamma_via_kozul = 0*Gamma;
+        for i = 1:model.NV
+            for j = 1:model.NV
+                for k = 1:model.NV
+                    Gamma_via_kozul(i,j,k) = ...
+                           Hpartial(k,i,j) + Hpartial(j,i,k) - Hpartial(j,k,i) ...
+                           + struc_const(i,j,k) + struc_const(k,i,j) + struc_const(j,i,k);
+                end
+            end
+        end
+        Gamma_via_kozul = Gamma_via_kozul/2;
+        
+        checkValue('Struc'    , Gamma_via_kozul   , Gamma ); % Christoffel
+        
         Hdot2 = 0*Hdot;
         for i = 1:model.NV
             Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);

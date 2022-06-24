@@ -118,30 +118,23 @@ function checkDynamics(model, desc)
         Gamma_cs = permute(dC_dqd,[1 3 2]);
         checkValue('Gamma_cs'  , Gamma_cs      , Gamma ); % Christoffel
         
-        
         C2 = 0*C;
         for i = 1:model.NV
             C2 = C2 + squeeze(Gamma(:,i,:)*qd(i));
         end
-        checkValue('CGamma'  , C      , C2    ); % Christoffel
-        
-        
-        if ~any(model.nv > 1) 
-            Hpartial = H_derivatives(model,q);
-            Gamma2 = 0*Gamma;
-            Hdot2 = 0*Hdot;
-            for i = 1:model.NB
-                for j = 1:model.NB
-                    for k = 1:model.NB
-                        Gamma2(i,j,k) = 1/2* (Hpartial(i,j,k) + Hpartial(i,k,j) - Hpartial(j,k,i));
-                    end
-                end
-                Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
-            end
-            
-            checkValue('Gamma'   , Gamma2 , Gamma ); % Christoffel
-            checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
+        checkValue('CGamma'  , C      , C2    ); % Christo
+
+        newConfig = @(x) configurationAddition(model,q,x);
+        H_partial_cs = complexStepJacobian( @(x) HandC(model, newConfig(x),qd), 0*qd);
+
+        Hpartial = H_derivatives(model,q);
+        checkValue('H_partial_cs'  , Hpartial      , H_partial_cs    ); % Christoffel
+
+        Hdot2 = 0*Hdot;
+        for i = 1:model.NV
+            Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
         end
+        checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
         
     end
 

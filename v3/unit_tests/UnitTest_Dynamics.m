@@ -135,7 +135,6 @@ function checkDynamics(model, desc)
             Hdot2 = Hdot2 + Hpartial(:,:,i)*qd(i);
         end
         checkValue('Hdot'    , Hdot   , Hdot2 ); % Christoffel
-        
     end
 
     % Regressors

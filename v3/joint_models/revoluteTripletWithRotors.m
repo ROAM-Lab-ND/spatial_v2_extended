@@ -41,7 +41,7 @@ classdef revoluteTripletWithRotors
 
             [XR1 , Sr1 ] = jcalc( ['R' obj.rotorAxis{1}], qr1 );
             [XR2 , Sr2 ] = jcalc( ['R' obj.rotorAxis{2}], qr2 );
-            [XR3 , Sr3 ] = jcalc( ['R' obj.rotorAxis{2}], qr3 );
+            [XR3 , Sr3 ] = jcalc( ['R' obj.rotorAxis{3}], qr3 );
 
             X1p  = XJ1 * Xtree(1:6,:);
             Xr1p = XR1 * Xtree(7:12,:);
@@ -49,7 +49,7 @@ classdef revoluteTripletWithRotors
             X2p  = X21 * X1p;
             Xr2p = XR2 * Xtree(13:18,:);
             Xr3p = XR3 * Xtree(19:24,:);
-            X32  = XJ3 * obj.XtreeInternal(1:6,:);
+            X32  = XJ3 * obj.XtreeInternal(7:12,:);
             X3p  = X32 * X2p;
 
             Xup = [X1p ; Xr1p ; X2p; Xr2p ; Xr3p ; X3p];

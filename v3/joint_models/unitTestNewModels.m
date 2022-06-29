@@ -1,3 +1,4 @@
+clear
 %% Test with rotors
 disp('Absolute Pair Joints with Rotors')
 org_model = autoTree_rotor(8,2,.3);

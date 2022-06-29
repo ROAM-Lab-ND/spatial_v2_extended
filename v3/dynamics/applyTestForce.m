@@ -43,10 +43,12 @@ for i = 1:model.NB
   j = model.parent(i);
   
   % Here we are constructing the basis matrix Psi for the torques
-  % Such that f_{i} = Psi{i} * tau{i} + constraints
+  % Such that f_{i} = Psi{i} * tau{i} + constraints 
   % We set it up so that S{i}'*Psi{i} = Identity. 
+  % [Note, this matrix is only unique up to any additive matrix whose range 
+  % is orthogonal to the range of S.]
   % Instead of doing a QR, we should probaly bake this into the joint model
-  % class down the road.
+  % class down the road so that it is more physically meaningful.
   dofs = length(ii);
   [Q, ~] = qr(S{i}); % Use a QR to get a basis for constrained modes.
   

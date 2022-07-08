@@ -1,4 +1,4 @@
-function y_V = velocity_regressor(V)
+function y_V = vel_reg_Lee(V)
 % assemble velocity regressor based on twist V
 
 y_V = zeros(6,10);

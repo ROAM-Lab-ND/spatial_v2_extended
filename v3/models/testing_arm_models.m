@@ -14,6 +14,13 @@ qdd = rand(model_reg.NV,1);
 [tau2_reg,out2_reg] = ID_Lee(model_reg,q,qd,qdd);
 etau = norm(tau_reg-tau2_reg)
 
+Y_reg = RegressorClassical(model_reg, q,qd,qdd);
+Y2_reg = RegressorWithDerivs_Lee(model_reg, q,qd,qdd);
+
+% eY = norm( tau - Y*a)
+eY = norm(Y_reg - Y2_reg)
+
+
 %% Test with rotors
 disp('Revolutes with rotors')
 
@@ -28,6 +35,12 @@ qdd = rand(model_rot.NV,1);
 [tau2_rot,out2_rot] = ID_Lee(model_rot,q,qd,qdd);
 etau = norm(tau_rot-tau2_rot)
 
+Y_rot = RegressorClassical(model_rot, q,qd,qdd);
+Y2_rot = RegressorWithDerivs_Lee(model_rot, q,qd,qdd);
+
+% eY = norm( tau - Y*a)
+eY = norm(Y_rot - Y2_rot)
+
 %% Test with absolute triplet
 disp('Absolute triplet')
 model_abs = Arm6LinkAbsModel();
@@ -40,6 +53,12 @@ qdd = rand(model_abs.NV,1);
 [tau_abs,out_abs] = ID(model_abs,q,qd,qdd);
 [tau2_abs,out2_abs] = ID_Lee(model_abs,q,qd,qdd);
 etau = norm(tau_abs-tau2_abs)
+
+Y_abs = RegressorClassical(model_abs, q,qd,qdd);
+Y2_abs = RegressorWithDerivs_Lee(model_abs, q,qd,qdd);
+
+% eY = norm( tau - Y*a)
+eY = norm(Y_abs - Y2_abs)
 
 %% Testing ID derivatives
 
@@ -62,9 +81,21 @@ p_initial = rand(2*m,6) - 0.5;  % initial p
 
 test_index = 23;
 
-[tau,out] = ID(model_abs,q(:,test_index),qd(:,test_index),qdd(:,test_index));
+qtest = q(:,test_index);
+qdtest = qd(:,test_index);
+qddtest = qdd(:,test_index);
 
-[dtau, dV, dVd] = ID_derivatives_Lee( model_abs, q(:,test_index), qd(:,test_index), qdd(:,test_index), ...
-                        dq(:,:,test_index), dqd(:,:,test_index), dqdd(:,:,test_index), out.f );
+dqtest = dq(:,:,test_index);
+dqdtest = dqd(:,:,test_index);
+dqddtest = dqdd(:,:,test_index);
+
+[tau,out] = ID(model_abs,qtest,qdtest,qddtest);
+
+[dtau, dV, dVd] = ID_derivatives_Lee( model_abs, qtest, qdtest, qddtest, ...
+                        dqtest, dqdtest, dqddtest, out.f );
+
+Y_abs = RegressorClassical(model_abs, qtest,qdtest,qddtest);
+[Y2_abs, dY2_abs, W2_abs, dW2_abs] = RegressorWithDerivs_Lee(model_abs, qtest,qdtest,qddtest, ...
+                                    dqtest,dqdtest,dqddtest);
 
 disp('Done!')

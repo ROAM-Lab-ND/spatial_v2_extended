@@ -16,7 +16,6 @@ classdef RBD_model
         Xtree
         XtreeKin
         XtreeKinRot
-        childKin
         joint
         qinds
         vinds

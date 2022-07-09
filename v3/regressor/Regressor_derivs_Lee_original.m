@@ -19,7 +19,7 @@
 %  dW      (optional) sub-regressor derivative matrix   6n*10n*m*n                     
 
 %% Implementation
-function [dY, varargout] = getRegressorDerivativesRecursive(A,M,q,V,Vdot,dq,dV,dVdot,varargin)
+function [dY, varargout] = Regressor_derivs_Lee_original(A,M,q,V,Vdot,dq,dV,dVdot,varargin)
     %% Initialization
     n      = size(q,1);         % number of joints
     m      = size(dq,2);        % number of parameters

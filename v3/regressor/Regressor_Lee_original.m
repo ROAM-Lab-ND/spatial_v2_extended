@@ -16,7 +16,7 @@
 %  W       (optional) sub-regressor matrix (Y = diag(A)'*W)  6n*10n                       
 
 %% Implementation
-function [Y, varargout] = getRegressorRecursive(A,M,q,V,Vdot)
+function [Y, varargout] = Regressor_Lee_original(A,M,q,V,Vdot)
     %% Initialization
     n      = size(q,1);         % number of joints  
     W      = zeros(6*n, 10*n);

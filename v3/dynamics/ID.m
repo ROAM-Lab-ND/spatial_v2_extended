@@ -53,6 +53,8 @@ for i = model.NB:-1:1
 end
 
 out.Xup = Xup;
+out.S = S;
+out.Sd = Sd;
 out.v = v;
 out.h = h;
 out.a = a;

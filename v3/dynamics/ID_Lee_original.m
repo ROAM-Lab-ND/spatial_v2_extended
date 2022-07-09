@@ -27,7 +27,7 @@
 % [tau, V, Vdot, F] = solveInverseDynamics(A,M,q,qdot,qddot,G,Vdot_0)
 
 %% Implementation
-function [tau, varargout] = solveInverseDynamics(A,M,q,qdot,qddot,G,varargin)
+function [tau, varargout] = ID_Lee_original(A,M,q,qdot,qddot,G,varargin)
     %% Initialization
     n     = size(q,1);          % number of joints
     V     = zeros(6,n);

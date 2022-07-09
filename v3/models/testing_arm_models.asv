@@ -12,7 +12,7 @@ qdd = rand(model_reg.NV,1);
 
 [tau_reg,out_reg] = ID(model_reg,q,qd,qdd);
 [tau2_reg,out2_reg] = ID_Lee(model_reg,q,qd,qdd);
-etau = norm(tau_reg-tau2_reg)
+etau = norm(tau-tau2)
 
 %% Test with rotors
 disp('Revolutes with rotors')
@@ -26,7 +26,7 @@ qdd = rand(model_rot.NV,1);
 
 [tau_rot,out_rot] = ID(model_rot,q,qd,qdd);
 [tau2_rot,out2_rot] = ID_Lee(model_rot,q,qd,qdd);
-etau = norm(tau_rot-tau2_rot)
+etau = norm(tau-tau2)
 
 %% Test with absolute triplet
 disp('Absolute triplet')
@@ -39,7 +39,7 @@ qdd = rand(model_abs.NV,1);
 
 [tau_abs,out_abs] = ID(model_abs,q,qd,qdd);
 [tau2_abs,out2_abs] = ID_Lee(model_abs,q,qd,qdd);
-etau = norm(tau_abs-tau2_abs)
+etau = norm(tau-tau2)
 
 %% Testing ID derivatives
 
@@ -62,9 +62,10 @@ p_initial = rand(2*m,6) - 0.5;  % initial p
 
 test_index = 23;
 
-[tau,out] = ID(model_abs,q(:,test_index),qd(:,test_index),qdd(:,test_index));
+[tau,out] = ID(model_reg,q(:,test_index),qd(:,test_index),qdd(:,test_index));
 
-[dtau, dV, dVd] = ID_derivatives_Lee( model_abs, q(:,test_index), qd(:,test_index), qdd(:,test_index), ...
+[dtau, dV, dVd] = ID_derivatives_Lee( model_reg, q(:,test_index), qd(:,test_index), qdd(:,test_index), ...
                         dq(:,:,test_index), dqd(:,:,test_index), dqdd(:,:,test_index), out.f );
 
-disp('Done!')
+
+

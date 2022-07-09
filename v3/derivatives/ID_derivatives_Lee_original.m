@@ -28,7 +28,7 @@
 % [dtau, dV, dVdot, dF] = solveInverseDynamicsDerivatives(A,M,q,qdot,G,V,Vdot,dq,dqdot,dqddot,F)
 
 %% Implementation
-function [dtau, varargout] = solveInverseDynamicsDerivatives(A,M,q,qdot,G,V,Vdot,dq,dqdot,dqddot,F,varargin)
+function [dtau, varargout] = ID_derivatives_Lee_original(A,M,q,qdot,G,V,Vdot,dq,dqdot,dqddot,F,varargin)
     %% Initialization
     n      = size(q,1);         % number of joints
     m      = size(dq,2);        % number of parameters

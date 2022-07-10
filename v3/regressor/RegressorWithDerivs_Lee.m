@@ -58,7 +58,7 @@ for i = model.NB:-1:1
             dWcell{i}(:,model.param_inds{k},p) = Xup{i}.'*dWcell{i+1}(:,model.param_inds{k},p);
             for j = 1:size(S{k},2)
                 % TODO: need to check indices again here
-                dWcell{i}(:,model.param_inds{k},p) = dWcell{i}(:,model.param_inds{k},p) - Xup{i}.'*crm(S{i+1}(:,j)).'*Wcell{i+1}(:,model.param_inds{k})*dq{k}(j,p);
+                dWcell{i}(:,model.param_inds{k},p) = dWcell{i}(:,model.param_inds{k},p) - Xup{i}.'*crm(S{i+1}(:,j)).'*Wcell{i+1}(:,model.param_inds{k})*dq{i+1}(j,p);
             end
         end
     end

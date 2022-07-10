@@ -53,11 +53,12 @@ for i = model.NB:-1:1
                                                     + crf(v{i})*vel_reg_Lee(dV{i}(:,p));
     end
     for k = i+1:model.NB
-        Wcell{i}(:,model.param_inds{k}) = Xup{k}.'*Wcell{k}(:,model.param_inds{k});
+        Wcell{i}(:,model.param_inds{k}) = Xup{i}.'*Wcell{i+1}(:,model.param_inds{k});
         for p = 1:m
-            dWcell{i}(:,model.param_inds{k},p) = Xup{k}.'*dWcell{k}(:,model.param_inds{k},p);
+            dWcell{i}(:,model.param_inds{k},p) = Xup{i}.'*dWcell{i+1}(:,model.param_inds{k},p);
             for j = 1:size(S{k},2)
-                dWcell{i}(:,model.param_inds{k},p) = dWcell{i}(:,model.param_inds{k},p) - Xup{k}.'*crm(S{k}(:,j)).'*Wcell{k}(:,model.param_inds{k})*dq{k}(j,p);
+                % TODO: need to check indices again here
+                dWcell{i}(:,model.param_inds{k},p) = dWcell{i}(:,model.param_inds{k},p) - Xup{i}.'*crm(S{i+1}(:,j)).'*Wcell{i+1}(:,model.param_inds{k})*dq{k}(j,p);
             end
         end
     end

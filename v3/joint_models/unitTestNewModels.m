@@ -1,3 +1,4 @@
+clear
 %% Test with rotors
 disp('Absolute Pair Joints with Rotors')
 org_model = autoTree_rotor(8,2,.3);
@@ -209,6 +210,17 @@ checkValue('Yg'    , Yg*a     , tau_g  ); % Gravity force regressor
 checkValue('Y_Hqd' , Y_Hqd*a  , H*qd   ); % Indirect regressor
 checkValue('Y_CTqd', Y_CTqd*a , C'*qd  ); % Indirect regressor
 
+
+J = BodyJacobian( model, q, 8, [zeros(6,18) eye(6)]);
+Lambda_inv = J*(H\J');
+F_spatial = [1 0 0 0 0 0]';
+F_group = [zeros(18,1) ; F_spatial];
+[qdd, lambda_inv_entry, sub, D] = applyTestForce(model,q,8,F_group);
+qdd2 = H\(J'*F_spatial);
+
+checkValue('Lambda_inv', F_spatial'*Lambda_inv*F_spatial,  lambda_inv_entry)
+checkValue('qdd_test', qdd,  qdd2)
+checkValue('invHFactor', sub*(D\(sub')), inv(H) ); 
 
 
 

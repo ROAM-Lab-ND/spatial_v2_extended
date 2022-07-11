@@ -6,7 +6,9 @@ if ~iscell(q)
 
 end
 
+% Hotfix for symbolic REMOVE
 Y = zeros(model.NV, model.N_RB*10);
+%Y = sym(zeros(model.NV, model.N_RB*10)); % REMOVE
 v = {};
 a = {};
 

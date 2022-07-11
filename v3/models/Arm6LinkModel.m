@@ -65,6 +65,8 @@ model.I{Nb} = mcI(link_masses(1),link_centers(1,:),boxInertia(link_masses(1),bas
 model.XtreeKin{Nl} = model.Xtree{Nb};
 model.Il{Nl} = model.I{Nb};
 
+model.I_RB{Nb} = model.I{Nb};
+
 graphics{Nb}.boundCenter = link_centers(1,:)';
 graphics{Nb}.boundAxes   = base_box/2*1.8;
 
@@ -82,6 +84,8 @@ model.I{Nb} = mcI(link_masses(2),link_centers(2,:),boxInertia(link_masses(2),sho
 
 model.XtreeKin{Nl} = model.Xtree{Nb};
 model.Il{Nl} = model.I{Nb};
+
+model.I_RB{Nb} = model.I{Nb};
 
 graphics{Nb}.boundCenter = link_centers(2,:)';
 graphics{Nb}.boundAxes   = shoulder_box/2*1.8;
@@ -101,6 +105,8 @@ model.I{Nb} = mcI(link_masses(3),link_centers(3,:),boxInertia(link_masses(3),upp
 model.XtreeKin{Nl} = model.Xtree{Nb};
 model.Il{Nl} = model.I{Nb};
 
+model.I_RB{Nb} = model.I{Nb};
+
 graphics{Nb}.boundCenter = link_centers(3,:)';
 graphics{Nb}.boundAxes   = upper_arm_box/2*1.8;
 
@@ -118,6 +124,8 @@ model.I{Nb} = mcI(link_masses(4),link_centers(4,:),boxInertia(link_masses(4),low
 
 model.XtreeKin{Nl} = model.Xtree{Nb};
 model.Il{Nl} = model.I{Nb};
+
+model.I_RB{Nb} = model.I{Nb};
 
 graphics{Nb}.boundCenter = link_centers(4,:)';
 graphics{Nb}.boundAxes   = lower_arm_box/2*1.8;
@@ -137,6 +145,8 @@ model.I{Nb} = mcI(link_masses(5),link_centers(5,:),boxInertia(link_masses(5),wri
 model.XtreeKin{Nl} = model.Xtree{Nb};
 model.Il{Nl} = model.I{Nb};
 
+model.I_RB{Nb} = model.I{Nb};
+
 graphics{Nb}.boundCenter = link_centers(5,:)';
 graphics{Nb}.boundAxes   = wrist_box/2*1.8;
 
@@ -154,6 +164,8 @@ model.I{Nb} = mcI(link_masses(6),link_centers(6,:),boxInertia(link_masses(6),gri
 
 model.XtreeKin{Nl} = model.Xtree{Nb};
 model.Il{Nl} = model.I{Nb};
+
+model.I_RB{Nb} = model.I{Nb};
 
 graphics{Nb}.boundCenter = link_centers(6,:)';
 graphics{Nb}.boundAxes   = gripper_box/2*1.8;

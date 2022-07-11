@@ -15,10 +15,10 @@ qdd = rand(model_reg.NV,1);
 etau = norm(tau_reg-tau2_reg)
 
 Y_reg = RegressorClassical(model_reg, q,qd,qdd);
-Y2_reg = RegressorWithDerivs_Lee(model_reg, q,qd,qdd);
+% Y2_reg = RegressorWithDerivs_Lee(model_reg, q,qd,qdd);
 
 % eY = norm( tau - Y*a)
-eY = norm(Y_reg - Y2_reg)
+% eY = norm(Y_reg - Y2_reg)
 
 
 %% Test with rotors
@@ -36,10 +36,10 @@ qdd = rand(model_rot.NV,1);
 etau = norm(tau_rot-tau2_rot)
 
 Y_rot = RegressorClassical(model_rot, q,qd,qdd);
-Y2_rot = RegressorWithDerivs_Lee(model_rot, q,qd,qdd);
+% Y2_rot = RegressorWithDerivs_Lee(model_rot, q,qd,qdd);
 
 % eY = norm( tau - Y*a)
-eY = norm(Y_rot - Y2_rot)
+% eY = norm(Y_rot - Y2_rot)
 
 %% Test with absolute triplet
 disp('Absolute triplet')
@@ -55,10 +55,10 @@ qdd = rand(model_abs.NV,1);
 etau = norm(tau_abs-tau2_abs)
 
 Y_abs = RegressorClassical(model_abs, q,qd,qdd);
-Y2_abs = RegressorWithDerivs_Lee(model_abs, q,qd,qdd);
+% Y2_abs = RegressorWithDerivs_Lee(model_abs, q,qd,qdd);
 
 % eY = norm( tau - Y*a)
-eY = norm(Y_abs - Y2_abs)
+% eY = norm(Y_abs - Y2_abs)
 
 %% Testing ID derivatives
 
@@ -89,13 +89,26 @@ dqtest = dq(:,:,test_index);
 dqdtest = dqd(:,:,test_index);
 dqddtest = dqdd(:,:,test_index);
 
-[tau,out] = ID(model_abs,qtest,qdtest,qddtest);
+model_to_use = model_abs;
 
-[dtau, dV, dVd] = ID_derivatives_Lee( model_abs, qtest, qdtest, qddtest, ...
+a = [];
+a(1:10,1) = inertiaMatToVec( model_to_use.I_RB{1} );
+for i = 2:model_to_use.N_RB
+    a(end+1 : end+10) = inertiaMatToVec(model_to_use.I_RB{i});
+end
+
+[tau,out] = ID(model_to_use,qtest,qdtest,qddtest);
+[tau2,out] = ID_Lee(model_to_use,qtest,qdtest,qddtest);
+
+[dtau, dV, dVd] = ID_derivatives_Lee( model_to_use, qtest, qdtest, qddtest, ...
                         dqtest, dqdtest, dqddtest, out.f );
 
-Y_abs = RegressorClassical(model_abs, qtest,qdtest,qddtest);
-[Y2_abs, dY2_abs, W2_abs, dW2_abs] = RegressorWithDerivs_Lee(model_abs, qtest,qdtest,qddtest, ...
+[Y_out, W_out] = RegressorClassical(model_to_use, qtest,qdtest,qddtest);
+[Y2_out, dY2_out, W2_out, dW2_out] = RegressorWithDerivs_Lee(model_to_use, qtest,qdtest,qddtest, ...
                                     dqtest,dqdtest,dqddtest);
 
-disp('Done!')
+eW = norm(W_out - W2_out)
+eY = norm(Y_out - Y2_out)
+
+eY1 = norm( tau - Y_out*a)
+eY2 = norm( tau2 - Y2_out*a)

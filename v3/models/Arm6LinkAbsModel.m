@@ -65,6 +65,7 @@ gripper_box = [0.050, 0.110, 0.200]; % represents wrist roll output
 % There are 6 links/bodies and 6 rotors
 Nb = 0; % start body index at 0
 Nl = 0; % start link index at 0
+Nrb = 0;
 model = RBD_model();
 
 
@@ -87,6 +88,11 @@ model.XtreeKin{Nl} = plux(eye(3), joint_offsets(1,:)');
 model.XtreeKinRot{Nl} = plux(eye(3), rotor_offsets(1,:)');
 model.Il{Nl} = mcI(link_masses(1),link_centers(1,:),boxInertia(link_masses(1),base_box));
 model.Ir{Nl} = mcI(rotor_masses(1),[0 0 0],boxInertia(rotor_masses(1),[U12_dia, U12_dia, U12_width]));
+
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Il{Nl};
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Ir{Nl};
 
 graphics{Nl}.boundCenter = link_centers(1,:)';
 graphics{Nl}.boundAxes   = base_box/2*1.8;
@@ -113,6 +119,11 @@ model.XtreeKinRot{Nl} = plux(eye(3), rotor_offsets(2,:)');
 model.Il{Nl} = mcI(link_masses(2),link_centers(2,:),boxInertia(link_masses(2),shoulder_box));
 model.Ir{Nl} = mcI(rotor_masses(1),[0 0 0],boxInertia(rotor_masses(1),[U12_dia, U12_width, U12_dia]));
 
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Il{Nl};
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Ir{Nl};
+
 graphics{Nl}.boundCenter = link_centers(2,:)';
 graphics{Nl}.boundAxes   = shoulder_box/2*1.8;
 graphics{Nl}.boundCenterRot = [0 0 0]';
@@ -137,6 +148,11 @@ model.XtreeKin{Nl} = plux(eye(3), joint_offsets(3,:)');
 model.XtreeKinRot{Nl} = plux(eye(3), rotor_offsets(3,:)');
 model.Il{Nl} = mcI(link_masses(3),link_centers(3,:),boxInertia(link_masses(3),upper_arm_box));
 model.Ir{Nl} = mcI(rotor_masses(1),[0 0 0],boxInertia(rotor_masses(1),[U12_dia, U12_dia, U12_width]));
+
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Il{Nl};
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Ir{Nl};
 
 graphics{Nl}.boundCenter = link_centers(3,:)';
 graphics{Nl}.boundAxes   = upper_arm_box/2*1.8;
@@ -198,6 +214,11 @@ model.XtreeKinRot{Nl} = plux(eye(3), rotor_offsets(4,:)');
 model.Il{Nl} = mcI(link_masses(4),link_centers(4,:),boxInertia(link_masses(4),lower_arm_box));
 model.Ir{Nl} = mcI(rotor_masses(1),[0 0 0],boxInertia(rotor_masses(1),[U12_dia, U12_width, U12_dia]));
 
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Il{Nl}; % first link inertia
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Ir{Nl}; % first rotor inertia
+
 graphics{Nl}.boundCenter = link_centers(4,:)';
 graphics{Nl}.boundAxes   = lower_arm_box/2*1.8;
 graphics{Nl}.boundCenterRot = [0 0 0]';
@@ -208,6 +229,11 @@ model.XtreeKin{Nl} = plux(eye(3), joint_offsets(5,:)');
 model.XtreeKinRot{Nl} = plux(eye(3), rotor_offsets(5,:)'); % Note: this is relative to elbow parent body, not wrist pitch parent body
 model.Il{Nl} = mcI(link_masses(5),link_centers(5,:),boxInertia(link_masses(5),wrist_box)); 
 model.Ir{Nl} = mcI(rotor_masses(2),[0 0 0],boxInertia(rotor_masses(2),[U10_dia, U10_width, U10_dia]));
+
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Il{Nl}; % second link inertia
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Ir{Nl}; % second rotor inertia
 
 graphics{Nl}.boundCenter = link_centers(5,:)';
 graphics{Nl}.boundAxes   = wrist_box/2*1.8;
@@ -220,6 +246,11 @@ model.XtreeKin{Nl} = plux(eye(3), joint_offsets(6,:)');
 model.XtreeKinRot{Nl} = plux(eye(3), rotor_offsets(6,:)');
 model.Il{Nl} = mcI(link_masses(6),link_centers(6,:),boxInertia(link_masses(6),gripper_box));
 model.Ir{Nl} = mcI(rotor_masses(2),[0 0 0],boxInertia(rotor_masses(2),[U10_dia, U10_width, U10_dia]));
+
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Ir{Nl}; % third rotor inertia
+Nrb = Nrb+1;
+model.I_RB{Nrb} = model.Il{Nl}; % third link inertia
 
 graphics{Nl}.boundCenter = link_centers(6,:)';
 graphics{Nl}.boundAxes   = gripper_box/2*1.8;

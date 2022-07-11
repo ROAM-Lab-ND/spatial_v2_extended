@@ -11,6 +11,7 @@ classdef RBD_model
         I 
         Il
         Ir
+        I_RB
         gravity
         appearance
         Xtree

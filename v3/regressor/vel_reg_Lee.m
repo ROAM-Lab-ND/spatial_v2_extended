@@ -1,6 +1,9 @@
 function y_V = vel_reg_Lee(V)
 % assemble velocity regressor based on twist V
 
+% Adapted from Bryan Dongik Lee, 2018
+% Original code at: https://github.com/SNURobotics/optimal-excitation/tree/master/libraries/dynamics
+
 if (length(V(:))==6 && size(V,2)==1)
     y_V = zeros(6,10);
     w = V(1:3); v = V(4:6);

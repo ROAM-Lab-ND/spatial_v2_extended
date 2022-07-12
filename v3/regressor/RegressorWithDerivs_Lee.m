@@ -1,5 +1,8 @@
 function [Y, dY, W, dW] = RegressorWithDerivs_Lee( model, q, qd, qdd, dq, dqd, dqdd)
 
+% Adapted from Bryan Dongik Lee, 2018
+% Original code at: https://github.com/SNURobotics/optimal-excitation/tree/master/libraries/dynamics
+
 model = model.postProcessModel();
 m      = size(dq,2);        % number of parameters
 

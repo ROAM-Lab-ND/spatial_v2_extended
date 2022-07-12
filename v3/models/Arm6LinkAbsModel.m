@@ -3,6 +3,9 @@ function [model, graphics] = Arm6LinkAbsModel()
 % This function creates both the rigid body model struct and a graphics
 % cell array that specifies the full teleop arm model
 
+% This version has rotors and the absolute triplet for the final three
+% joints.
+
 % The 0-configuration for the robot is completely vertical with all joint
 % frames / body frames aligned
 % The inertial coordinates have +z up (i.e. gravity = [0 0 -9.81 m/s^2])

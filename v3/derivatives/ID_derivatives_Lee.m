@@ -2,6 +2,9 @@ function  [dtau, dV, dVd] = ID_derivatives_Lee( model, q, qd, qdd, dq, dqd, dqdd
 
 % derivatives of inverse dynamics w.r.t. trajectory parameters
 
+% Adapted from Bryan Dongik Lee, 2018
+% Original code at: https://github.com/SNURobotics/optimal-excitation/tree/master/libraries/dynamics
+
 model = model.postProcessModel();
 a_grav = model.getGravity();
 m      = size(dq,2);        % number of parameters

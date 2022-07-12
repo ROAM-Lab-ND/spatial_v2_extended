@@ -1,13 +1,7 @@
 function  [tau, out] = ID_Lee( model, q, qd, qdd, f_tip )
 
-% ID  Inverse Dynamics via Recursive Newton-Euler Algorithm
-% ID(model,q,qd,qdd,f_ext) calculates the inverse dynamics of a kinematic
-% tree via the recursive Newton-Euler algorithm.  q, qd and qdd are vectors
-% of joint position, velocity and acceleration variables; and the return
-% value is a vector of joint force variables.  f_ext is an optional
-% argument specifying the external forces acting on the bodies.  It can be
-% omitted if there are no external forces.  The format of f_ext is
-% explained in the source code of apply_external_forces.
+% Adapted from Bryan Dongik Lee, 2018
+% Original code at: https://github.com/SNURobotics/optimal-excitation/tree/master/libraries/dynamics
 
 
 model = model.postProcessModel();

@@ -55,23 +55,15 @@ for i = model.NB:-1:1
     
     for p=1:model.nv(i) % looping over each DoF of joint j
 
-        S_p    = S{i}(:,p);    Sd_p   = Sd{i}(:,p);
-        psid_p = psid{i}(:,p); psidd_p = psidd{i}(:,p);
+        S_p    = S{i}(:,p); Sd_p = Sd{i}(:,p); psid_p = psid{i}(:,p); psidd_p = psidd{i}(:,p);
         
         Bic_phii     = 2*factorFunctions(IC{i} ,S_p   );
         Bic_psii_dot = 2*factorFunctions(IC{i} ,psid_p);
         
-        A0 = crf_bar(IC{i}*S_p);
-        A1 = dot(IC{i}, S_p); 
-        A2 = 2*A0-Bic_phii;
-        A3 = Bic_psii_dot+dot(BC{i}, S_p);
-        A4 = crf_bar(BC{i}.'*S_p); 
-        A5 = crf_bar(BC{i}*psid_p + ...
-                IC{i}*psidd_p+...
-                crf(S_p)*f{i});
-        A6 = crf(S_p)*IC{i}+A0;
-        A7 = crf_bar(BC{i}*S_p+...
-                IC{i}*(psid_p+Sd_p));
+        A0 = crf_bar(IC{i}*S_p);            A1 = dot(IC{i}, S_p); 
+        A2 = 2*A0-Bic_phii;                 A3 = Bic_psii_dot+dot(BC{i}, S_p);
+        A4 = crf_bar(BC{i}.'*S_p);          A5 = crf_bar(BC{i}*psid_p + IC{i}*psidd_p+crf(S_p)*f{i});
+        A6 = crf(S_p)*IC{i}+A0;             A7 = crf_bar(BC{i}*S_p+IC{i}*(psid_p+Sd_p));
             
       ii = model.vinds{i};
       j = i;
@@ -84,70 +76,63 @@ for i = model.NB:-1:1
             S_t    = S{j}(:,t);    Sd_t   = Sd{j}(:,t);
             psid_t = psid{j}(:,t); psidd_t = psidd{j}(:,t);
         
-            u1 = A3.'*S_t;                           
-            u2 = A1.'*S_t;                               
-            u3 = A3*psid_t+A1*psidd_t+A5*S_t; 
-            u4 = A6*S_t;                                   
-            u5 = A2*psid_t+A4*S_t;        
-            u6 = Bic_phii*psid_t + A7*S_t; 
-            u7 = A3*S_t +A1*(psid_t+Sd_t);            
-            u8 = A4*S_t-Bic_phii.'*psid_t; 
-            u9 = A0*S_t;
-            u10 = Bic_phii*S_t;  
-            u11 = Bic_phii.'*S_t;                              
-            u12 = A1*S_t;
+            u1 = A3.'*S_t;                                  u2 = A1.'*S_t;                               
+            u3 = A3*psid_t+A1*psidd_t+A5*S_t;               u4 = A6*S_t;                                   
+            u5 = A2*psid_t+A4*S_t;                          u6 = Bic_phii*psid_t + A7*S_t; 
+            u7 = A3*S_t +A1*(psid_t+Sd_t);                  u8 = A4*S_t-Bic_phii.'*psid_t; 
+            u9 = A0*S_t;                                    u10 = Bic_phii*S_t;  
+            u11 = Bic_phii.'*S_t;                           u12 = A1*S_t;
            
                k = j;
                   while k > 0
                     kk = model.vinds{k};
                     
                      for r=1:model.nv(k)
-                        S_r    = S{k}(:,r);    Sd_r   = Sd{k}(:,r);
-                        psid_r = psid{k}(:,r); psidd_r = psidd{k}(:,r);
-            
-                       p1 = u11.'*psid_r;
-                       p2 = u8.'*psid_r+u9.'*psidd_r; 
-                       d2tau_dq(ii(p),jj(t),kk(r)) = p2;  
-                       d2tau_cross(ii(p),kk(r),jj(t)) =  -p1; 
+                           S_r    = S{k}(:,r);  Sd_r   = Sd{k}(:,r); psid_r = psid{k}(:,r); psidd_r = psidd{k}(:,r);
 
-                        if (j~=i)  
+                           p1 = u11.'*psid_r;
+                           p2 = u8.'*psid_r+u9.'*psidd_r; 
+                           d2tau_dq(ii(p),jj(t),kk(r)) = p2;  
+                           d2tau_cross(ii(p),kk(r),jj(t)) =  -p1; 
 
-                               d2tau_dq(jj(t),kk(r),ii(p)) =  u1.'*psid_r+ u2.'*psidd_r;     
-                               d2tau_dq(jj(t),ii(p),kk(r)) =  d2tau_dq(jj(t),kk(r),ii(p));        
-                               d2tau_cross(jj(t),kk(r),ii(p)) = p1;                               
-                               d2tau_cross(jj(t),ii(p),kk(r)) = u1.'*S_r+u2.'*(psid_r+Sd_r);                                  
-                               d2tau_dqd(jj(t),kk(r),ii(p)) =u11.'*S_r;                                         
-                               d2tau_dqd(jj(t),ii(p),kk(r)) = d2tau_dqd(jj(t),kk(r),ii(p));                
-                               dM_dq(kk(r),jj(t),ii(p)) =   S_r.'*u12;
-                               dM_dq(jj(t),kk(r),ii(p)) =  S_r.'*u12;
-                        end
+                            if (j~=i)  
 
-                         if (k~=j)
-                              d2tau_dq(ii(p),kk(r),jj(t)) = p2;  
-                              d2tau_dq(kk(r),ii(p),jj(t)) =  S_r.'*u3;                                                  
-                              d2tau_dqd(ii(p),jj(t),kk(r)) =-u11.'*S_r;     
-                              d2tau_dqd(ii(p),kk(r),jj(t)) = -u11.'*S_r;     
-                              d2tau_cross(ii(p),jj(t),kk(r)) = S_r.'*u5+u9.'*(psid_r+Sd_r);                               
-                              d2tau_cross(kk(r),jj(t),ii(p)) =  S_r.'*u6;                                 
-                              dM_dq(kk(r),ii(p),jj(t)) =  S_r.'*u9;
-                              dM_dq(ii(p),kk(r),jj(t)) =  S_r.'*u9;
+                                   d2tau_dq(jj(t),kk(r),ii(p)) =  u1.'*psid_r+ u2.'*psidd_r;     
+                                   d2tau_dq(jj(t),ii(p),kk(r)) =  d2tau_dq(jj(t),kk(r),ii(p));        
+                                   d2tau_cross(jj(t),kk(r),ii(p)) = p1;                               
+                                   d2tau_cross(jj(t),ii(p),kk(r)) = u1.'*S_r+u2.'*(psid_r+Sd_r);                                  
+                                   d2tau_dqd(jj(t),kk(r),ii(p)) =u11.'*S_r;                                         
+                                   d2tau_dqd(jj(t),ii(p),kk(r)) = d2tau_dqd(jj(t),kk(r),ii(p));                
+                                   dM_dq(kk(r),jj(t),ii(p)) =   S_r.'*u12;
+                                   dM_dq(jj(t),kk(r),ii(p)) =  S_r.'*u12;
+                            end
 
-                              if(j~=i)
+                             if (k~=j)
+                                  d2tau_dq(ii(p),kk(r),jj(t)) = p2;  
+                                  d2tau_dq(kk(r),ii(p),jj(t)) =  S_r.'*u3;                                                  
+                                  d2tau_dqd(ii(p),jj(t),kk(r)) =-u11.'*S_r;     
+                                  d2tau_dqd(ii(p),kk(r),jj(t)) = -u11.'*S_r;     
+                                  d2tau_cross(ii(p),jj(t),kk(r)) = S_r.'*u5+u9.'*(psid_r+Sd_r);                               
+                                  d2tau_cross(kk(r),jj(t),ii(p)) =  S_r.'*u6;                                 
+                                  dM_dq(kk(r),ii(p),jj(t)) =  S_r.'*u9;
+                                  dM_dq(ii(p),kk(r),jj(t)) =  S_r.'*u9;
 
-                                  d2tau_dq(kk(r),jj(t),ii(p)) =  d2tau_dq(kk(r),ii(p),jj(t));       
-                                  d2tau_dqd(kk(r),ii(p),jj(t)) =  S_r.'*u10;      
-                                  d2tau_dqd(kk(r),jj(t),ii(p)) = d2tau_dqd(kk(r),ii(p),jj(t));                 
-                                  d2tau_cross(kk(r),ii(p),jj(t)) =  S_r.'*u7;                      
+                                  if(j~=i)
 
-                              else
-                                  d2tau_dqd(kk(r),jj(t),ii(p)) =  S_r.'*u4;             
-                              end
-                         else                 
-                            d2tau_dqd(ii(p),jj(t),kk(r)) = -u2.'*S_r;                  
+                                      d2tau_dq(kk(r),jj(t),ii(p)) =  d2tau_dq(kk(r),ii(p),jj(t));       
+                                      d2tau_dqd(kk(r),ii(p),jj(t)) =  S_r.'*u10;      
+                                      d2tau_dqd(kk(r),jj(t),ii(p)) = d2tau_dqd(kk(r),ii(p),jj(t));                 
+                                      d2tau_cross(kk(r),ii(p),jj(t)) =  S_r.'*u7;                      
 
-                         end
-                     
-                 end
+                                  else
+                                      d2tau_dqd(kk(r),jj(t),ii(p)) =  S_r.'*u4;             
+                                  end
+                             else                 
+                                d2tau_dqd(ii(p),jj(t),kk(r)) = -u2.'*S_r;                  
+
+                             end
+
+                          end
                     k  = model.parent(k);
                   end
 

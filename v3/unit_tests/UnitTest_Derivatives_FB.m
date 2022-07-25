@@ -6,6 +6,7 @@ N = 3;
 
 % Create a random model with N links
 model = autoTree(N, 1.5, pi/3);
+
 checkDerivatives(model,'Floating Base No Rotors');
 
 function checkDerivatives(model, desc)
@@ -14,6 +15,7 @@ function checkDerivatives(model, desc)
     fprintf('====================================\n');
     
     model.jtype{1} = 'Fb';
+    model.jtype{2} = 'S';
     model = postProcessModel(model);
     
     % Random inertial properties
@@ -34,6 +36,7 @@ function checkDerivatives(model, desc)
 
     qd  = rand(model.NV,1);
     qdd = rand(model.NV,1);
+    
     lambda = rand(model.NV,1);
 
     % Calculate dynamics quanitites
@@ -110,10 +113,10 @@ function checkDerivatives(model, desc)
     modFD_tauq_cs = complexStepJacobian( @(x) outputSelect(3,@modFD_derivatives,model,newConfig(x),qd,tau,lambda),0*qd );
 %       
     ID_qq_cs    = complexStepJacobian( @(x) outputSelect(1,@ID_derivatives,model,newConfig(x),qd,qdd), 0*qd );
-    ID_qdq_cs   = complexStepJacobian( @(x) outputSelect(2,@ID_derivatives,model,newConfig(x),qd,qdd), 0*qd );
+    ID_dqd_cs  = complexStepJacobian( @(x) outputSelect(1,@ID_derivatives,model,q,x,qdd), qd );
     ID_qdqd_cs  = complexStepJacobian( @(x) outputSelect(2,@ID_derivatives,model,q,x,qdd), qd );
     ID_q_qdd_cs = complexStepJacobian( @(x) outputSelect(1,@ID_derivatives,model,q,qd,x), qdd );
-
+    
     checkValue('ID_q'   , dtau_dq      , dtau_dq_cs   ); % Partials of ID w.r.t. q
     checkValue('ID_qd'  , dtau_dqd     , dtau_dqd_cs  ); % Partials of ID w.r.t. qd
 % 
@@ -158,7 +161,7 @@ function checkDerivatives(model, desc)
 %
     checkValue('ID_qq'       , ID_qq         , ID_qq_cs                ); % SO Partials of ID w.r.t. q,q
     checkValue('ID_qdqd'     , ID_qdqd       , ID_qdqd_cs              ); % SO Partials of ID w.r.t. qd,qd
-    checkValue('ID_qdq'      , ID_qdq        , ID_qdq_cs               ); % SO Partials of ID w.r.t. qd,q
+    checkValue('ID_qdq'      , ID_qdq        , ID_dqd_cs               ); % SO Partials of ID w.r.t. q,qd
     checkValue('ID_qdd_q'    , ID_qdd_q      , tensorRotR(ID_q_qdd_cs)       ); % SO Partials of ID w.r.t. qdd,q
 
     fprintf('\n');

@@ -18,4 +18,4 @@
 %     startup.m in that directory, then simply add the (edited) line
 %     below to that file.
 
-addpath( genpath( '/home/users/roy/booksoft/spatial_v2' ) );
+addpath( genpath( '/home/shubham/spatial_v2_extended' ) );

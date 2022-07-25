@@ -113,7 +113,7 @@ function checkDerivatives(model, desc)
         modFD_tauq_cs = complexStepJacobian( @(x) outputSelect(3,@modFD_derivatives,model,x,qd,tau,lambda),q );
 
         ID_qq_cs    = complexStepJacobian( @(x) outputSelect(1,@ID_derivatives,model,x,qd,qdd), q );
-        ID_qdq_cs   = complexStepJacobian( @(x) outputSelect(2,@ID_derivatives,model,x,qd,qdd), q );
+        ID_dqd_cs  = complexStepJacobian( @(x) outputSelect(1,@ID_derivatives,model,q,x,qdd), qd );
         ID_qdqd_cs  = complexStepJacobian( @(x) outputSelect(2,@ID_derivatives,model,q,x,qdd), qd );
         ID_q_qdd_cs = complexStepJacobian( @(x) outputSelect(1,@ID_derivatives,model,q,qd,x), qdd );
     
@@ -154,7 +154,7 @@ function checkDerivatives(model, desc)
        
         checkValue('ID_qq'       , ID_qq         , ID_qq_cs                ); % SO Partials of ID w.r.t. q,q
         checkValue('ID_qdqd'     , ID_qdqd       , ID_qdqd_cs              ); % SO Partials of ID w.r.t. qd,qd
-        checkValue('ID_qdq'      , ID_qdq        , ID_qdq_cs               ); % SO Partials of ID w.r.t. qd,q
+        checkValue('ID_qdq'      , ID_qdq        , ID_dqd_cs               ); % SO Partials of ID w.r.t. q,qd
         checkValue('ID_qdd_q'    , ID_qdd_q      , tensorRotR(ID_q_qdd_cs)       ); % SO Partials of ID w.r.t. qdd,q
     
     

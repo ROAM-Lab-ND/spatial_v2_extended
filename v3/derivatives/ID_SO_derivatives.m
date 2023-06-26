@@ -21,6 +21,7 @@ a_grav = get_gravity(model);
 IC = model.I;
 I = model.I;
 
+% Forward sweep
 for i = 1:model.NB
     [ XJ, S{i} ] = jcalc( model.jtype{i}, q{i} );
     Xup{i} = XJ * model.Xtree{i};
@@ -47,7 +48,7 @@ for i = 1:model.NB
     f{i}  =  IC{i}*a{i} + crf(v{i})*IC{i}*v{i};
 end
 
-% Can be parallelized across branches
+% Backward sweep: Can be parallelized across branches
 for j = model.NB:-1:1
     if model.parent(j) > 0
         p = model.parent(j);
@@ -71,10 +72,14 @@ for j = model.NB:-1:1
         A1 = dot(IC{j}, S_d); 
         A2 = Bic_psii_dot+dot(BC{j}, S_d); 
         A3 = crf_bar(IC{j}*S_d);
+        
+        % These temps are 6 x n (where n =#dofs)
         T1(:,dd) = IC{j}*S_d;  
         T2(:,dd) = - BC{j}.'*S_d;
         T3(:,dd) = BC{j}*psid_d + IC{j}*psidd_d+crf_bar(f{j})*S_d;
         T4(:,dd) = BC{j}*S_d+IC{j}*(psid_d+Sd_d);
+        
+        % These temps are 36 x n (where n =#dofs)
         D1(:,dd) = A1(:);
         D2(:,dd) = A2(:);
         D3(:,dd)  = Bic_phii(:);
@@ -87,7 +92,7 @@ d2tau_dq  =  zeros(model.NV,model.NV,model.NV);
 d2tau_dqd =  zeros(model.NV,model.NV,model.NV);
 d2tau_cross =  zeros(model.NV,model.NV,model.NV);
    
-% Can be parallelized overall all j,d,k,c
+% Can be parallelized over all j,d,k,c
 for j = model.NB:-1:1
     jj = model.vinds{j};
     st_j = model.subtree_vinds{j};
@@ -109,6 +114,7 @@ for j = model.NB:-1:1
                 Sd_c   = Sd{k}(:,c);
                 psid_c = psid{k}(:,c);
                 
+                % these temps are 36 x 1
                 t1 = S_d    * psid_c.'    ;    t1 = t1(:);        
                 t2 = S_d    * S_c.'       ;    t2 = t2(:);       
                 t3 = psid_d * psid_c.'    ;    t3 = t3(:);        
@@ -116,6 +122,7 @@ for j = model.NB:-1:1
                 t5 = S_d    * (Sd_c+psid_c).'; t5 = t5(:);
                 t8 = S_c*S_d.'    ; t8 = t8(:);  
                 
+                % these temps are 6 x 1
                 p1 = crm( psid_c)*S_d;  
                 p2 = crm(psidd{k}(:,c)) * S_d;
                 

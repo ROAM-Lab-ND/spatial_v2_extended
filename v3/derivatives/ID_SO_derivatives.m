@@ -46,13 +46,19 @@ for i = 1:model.NB
     BC{i} = 2*factorFunctions(IC{i},v{i});
     f{i}  =  IC{i}*a{i} + crf(v{i})*IC{i}*v{i};
 end
-    dM_dq  =  zeros(model.NV,model.NV,model.NV);
-    d2tau_dq  =  zeros(model.NV,model.NV,model.NV);
-    d2tau_dqd =  zeros(model.NV,model.NV,model.NV);
-    d2tau_cross =  zeros(model.NV,model.NV,model.NV);
-    
+
+% Can be parallelized across branches
 for j = model.NB:-1:1
-    
+    if model.parent(j) > 0
+        p = model.parent(j);
+        IC{p} = IC{p} + IC{j};
+        BC{p} = BC{p} + BC{j};
+        f{p}  = f{p}  + f{j};
+    end
+end
+
+% Can be parallelized across all j,d
+for j = model.NB:-1:1
     for d=1:model.nv(j) % looping over each DoF of joint j
         dd = model.vinds{j}(d);
         S_d    = S{j}(:,d);
@@ -73,9 +79,16 @@ for j = model.NB:-1:1
         D2(:,dd) = A2(:);
         D3(:,dd)  = Bic_phii(:);
         D4(:,dd)  = A3(:);
-      
-    end  
-    
+    end 
+end
+
+dM_dq  =  zeros(model.NV,model.NV,model.NV);
+d2tau_dq  =  zeros(model.NV,model.NV,model.NV);
+d2tau_dqd =  zeros(model.NV,model.NV,model.NV);
+d2tau_cross =  zeros(model.NV,model.NV,model.NV);
+   
+% Can be parallelized overall all j,d,k,c
+for j = model.NB:-1:1
     jj = model.vinds{j};
     st_j = model.subtree_vinds{j};
     succ_j = model.successor_vinds{j};
@@ -88,7 +101,8 @@ for j = model.NB:-1:1
         psid_d = psid{j}(:,d);
         psidd_d = psidd{j}(:,d);
         
-        while k > 0
+        for k = model.ancestors{j} % looping over all ancestors of joint j (including joint j)
+            
             for c=1:model.nv(k)    % looping over each DoF of joint k
                 cc = model.vinds{k}(c);
                 S_c    = S{k}(:,c);
@@ -151,13 +165,9 @@ for j = model.NB:-1:1
             k  = model.parent(k);
         end
     end
-    if model.parent(j) > 0
-        p = model.parent(j);
-        IC{p} = IC{p} + IC{j};
-        BC{p} = BC{p} + BC{j};
-        f{p}  = f{p}  + f{j};
-    end
+
 end
+
 derivs.d2tau_dq=d2tau_dq;
 derivs.d2tau_dqd=d2tau_dqd;
 derivs.d2tau_cross=d2tau_cross;

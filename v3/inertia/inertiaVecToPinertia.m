@@ -4,7 +4,7 @@ function [ Pinertia ] = inertiaVecToPinertia( a )
 %
 % Input:  J (4x4) psuedo inertia
 % Output: a (10x1) Vector of inertial parameters
-%         a = [m hx hy hz Ixx Iyy Izz Ixy Ixz Iyz]'
+%         a = [m hx hy hz Ixx Iyy Izz Iyz Ixz Ixy]'
 %
 % The pseudo-inertia is discussed further in:
 %  Linear Matrix Inequalities for Physically Consistent Inertial Parameter 

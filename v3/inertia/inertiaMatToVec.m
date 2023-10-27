@@ -5,7 +5,7 @@ function [ a ] = inertiaMatToVec( I )
 % Input: I (6x6) spatial inertia matrix
 %
 % Outpt: a (10x1) Vector of inertial parameters
-%         a = [m hx hy hz Ixx Iyy Izz Ixy Ixz Iyz]'
+%         a = [m hx hy hz Ixx Iyy Izz Iyz Ixz Ixy]'
 %
 
     h = inv_skew(I(1:3,4:6));

@@ -3,7 +3,7 @@ function [ I ] = inertiaVecToMat( a )
 % inertia matrix
 %
 % Input: a (10x1) Vector of inertial parameters
-%         a = [m hx hy hz Ixx Iyy Izz Ixy Ixz Iyz]'
+%         a = [m hx hy hz Ixx Iyy Izz Iyz Ixz Ixy]'
 %
 % Ouput: I (6x6) spatial inertia matrix
 %

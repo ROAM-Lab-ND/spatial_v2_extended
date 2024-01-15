@@ -14,3 +14,8 @@ New features include:
 * Variety of tools for converting between different representations of orientation ([link](https://github.com/ROAM-Lab-ND/spatial_v2_extended/tree/main/v3/orientation_tools))
 * Methods for computing the partial derivatives of Inverse Dynamics ([link](https://github.com/ROAM-Lab-ND/spatial_v2_extended/blob/main/v3/derivatives/ID_derivatives.m)) 
 * Partial compatibility for complex-valued input arguments toward support of complex-step derivative comptuations in unit tests (including the complex step on matrix Lie groups [link](https://ieeexplore-ieee-org.proxy.library.nd.edu/abstract/document/8957301)).
+
+### About this branch:
+(by Shenggao)
+I noticed that CasADi also has it own skew function. And when we create a CasADi variable like SX, Matlab function overloading would call CasADi's skew function instead of skew from Spatial_v2_extended. He's approach was duplicate a skew2 function and call it. 
+I have changed all skew in spatial_v2 to skew2 so that function overload can be bypassed.

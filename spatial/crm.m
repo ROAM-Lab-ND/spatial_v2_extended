@@ -23,6 +23,6 @@ elseif length(v(:)) == 3 && size(v,2) == 1
 	     -v(2)  v(1)  0 ];
 else
     assert(all(size(v)==[6 6]),'Wrong size input to crm'); 
-    vcross = [ skew(v(1:3,1:3)) ; skew(v(4:6,1:3))];
+    vcross = [ skew2(v(1:3,1:3)) ; skew2(v(4:6,1:3))];
     assert(all(diag(v) == 0),'bad input to crm')
 end

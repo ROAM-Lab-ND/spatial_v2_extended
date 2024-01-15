@@ -5,7 +5,7 @@ function [angs1, angs2] = rotToEulerAngles(R,seq)
 getAng = @(a0, a1, ax) atan2( dot(ax, cross(a0,a1)) , dot(a0,a1) );
 
 I = eye(3);
-Re = @(i,th) expm(skew(I(:,i))*th);
+Re = @(i,th) expm(skew2(I(:,i))*th);
 
 a0 = I(:,seq(1));
 a1 = a0;

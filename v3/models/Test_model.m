@@ -18,7 +18,7 @@ robot.NB = 2;
 robot.parent = [0 1];
 robot.jtype = {'Rz', 'Rz'};
 
-robot.Xtree = { eye(6), plux(expm(skew([pi/2 0 0])) , [1 0 0]) };
+robot.Xtree = { eye(6), plux(expm(skew2([pi/2 0 0])) , [1 0 0]) };
 
 robot.gravity = [0 0 0];		% zero gravity is not the default,
                                         % so it must be stated explicitly

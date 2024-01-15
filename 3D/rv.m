@@ -30,7 +30,7 @@ else
   c = cos(theta);
   c1 = 2 * sin(theta/2)^2;		% 1-cos(h) == 2sin^2(h/2)
   u = v/theta;
-  E = c*eye(3) - s*skew(u) + c1*u*u';
+  E = c*eye(3) - s*skew2(u) + c1*u*u';
 end
 
 
@@ -48,7 +48,7 @@ function  v = Etov( E )
 % both represent the same rotation, but the direction will still be
 % accurate.
 
-w = -skew(E);				% w == s/theta * v
+w = -skew2(E);				% w == s/theta * v
 s = norm(w);
 c = (trace(E)-1)/2;
 theta = atan2(s,c);

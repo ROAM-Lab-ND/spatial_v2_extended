@@ -4,7 +4,7 @@ function  [derivs] = ID_SO_derivatives(model, q, qd, qdd)
 % Contributors - Shubham Singh, singh281@utexas.edu
 %              - Dr. Patrick Wensing, pwensing@nd.edu 
 
-crf_bar = @(x)[-skew(x(1:3)), -skew(x(4:6)) ; -skew(x(4:6)) ,zeros(3,3)]; % cross product matrix for force vectors with a bar over top
+crf_bar = @(x)[-skew2(x(1:3)), -skew2(x(4:6)) ; -skew2(x(4:6)) ,zeros(3,3)]; % cross product matrix for force vectors with a bar over top
 
 if ~isfield(model,'nq')
     model = postProcessModel(model);

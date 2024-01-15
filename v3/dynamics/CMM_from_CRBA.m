@@ -28,6 +28,6 @@ IC  = Psi'* H11 * Psi;
 [~, p1G] = mcI( IC ); % extract CoM position rel to FB
 
 R1G = X10(1:3,1:3);
-X1G = [R1G  zeros(3); skew(p1G)*R1G R1G];
+X1G = [R1G  zeros(3); skew2(p1G)*R1G R1G];
 
 A = X1G' * Psi' * H(1:6, :);

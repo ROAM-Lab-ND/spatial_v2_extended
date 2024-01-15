@@ -9,7 +9,7 @@ function  xp = Xpt( X, p )
   
 if all(size(X)==[6 6])			% 3D points
   E = X(1:3,1:3);
-  r = -skew(E'*X(4:6,1:3));
+  r = -skew2(E'*X(4:6,1:3));
 else					% 2D points
   E = X(2:3,2:3);
   r = [ X(2,3)*X(2,1)+X(3,3)*X(3,1); X(2,3)*X(3,1)-X(3,3)*X(2,1) ];

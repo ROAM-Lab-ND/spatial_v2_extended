@@ -58,7 +58,7 @@ switch code
     T = reshape(q,[4 4]);
     R = T(1:3,1:3);
     p = T(1:3,4);
-    Xj = [R zeros(3); skew(p)*R R];
+    Xj = [R zeros(3); skew2(p)*R R];
   otherwise
     error( 'unrecognised joint code ''%s''', code );
 end

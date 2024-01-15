@@ -17,9 +17,9 @@ function  out = pluho( in )
 if all(size(in)==[6 6])			% Plucker -> 4x4 homogeneous
   E = in(1:3,1:3);
   mErx = in(4:6,1:3);			% - E r cross
-  out = [ E, skew(mErx*E'); 0 0 0 1 ];
+  out = [ E, skew2(mErx*E'); 0 0 0 1 ];
 else					% 4x4 homogeneous -> Plucker
   E = in(1:3,1:3);
   mEr = in(1:3,4);			% - E r
-  out = [ E, zeros(3); skew(mEr)*E, E ];
+  out = [ E, zeros(3); skew2(mEr)*E, E ];
 end

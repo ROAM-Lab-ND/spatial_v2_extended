@@ -56,7 +56,7 @@ function new_q = configurationAddition(model,q,dq)
                 end
             case {'SO3'}
                 R = reshape(q{i},[3 3]);
-                so3 = -skew(dq{i});
+                so3 = -skew2(dq{i});
                 if ~isreal(dq{i})
                     if USE_MCX
                         new_q(ii) = reshape( expmComplexStep(so3)* R, [9 1]);

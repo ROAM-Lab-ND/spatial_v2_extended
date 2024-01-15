@@ -12,7 +12,7 @@ end
 % This term has zero derivative at 0. So when phi< sqrt(eps), this term is zero to machine precision
 term = 1-cos(phi/2)/sinc2(phi/2); 
 
-ang_ax_dot = (I + 1/2*skew(ang_ax) + term*skew(ax)^2)*w;
+ang_ax_dot = (I + 1/2*skew2(ang_ax) + term*skew2(ax)^2)*w;
 
 end
 

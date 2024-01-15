@@ -12,7 +12,7 @@ function [ Pinertia ] = inertiaVecToPinertia( a )
 %  Wensing, Kim, Slotine
 
     I = inertiaVecToMat(a);
-    h = skew(I(1:3,4:6));
+    h = skew2(I(1:3,4:6));
     Ibar = I(1:3,1:3);
     m = I(6,6);
     Pinertia = [ 1/2*trace(Ibar)*eye(3)-Ibar h ; h.' m ];

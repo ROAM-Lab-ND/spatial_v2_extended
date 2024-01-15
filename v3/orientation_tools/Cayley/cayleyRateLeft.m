@@ -5,7 +5,7 @@ function cDot = cayleyRateLeft(c,w,n)
 
     if n == 1
         I = eye(3);    
-        cDot = 1/2*( I - skew(c) + c*c')*w;
+        cDot = 1/2*( I - skew2(c) + c*c')*w;
     else
         cDot = getRateLeft(c, w, n);
     end
@@ -22,10 +22,10 @@ function [dtau, A] = getRateLeft(tau,w, n)
 end
 
 function [w, R] = getOmegaLeft(tau, dtau, n )
-    T  = -skew(tau);
-    dT = -skew(dtau);
+    T  = -skew2(tau);
+    dT = -skew2(dtau);
     [sk_w,  R] = derivHelper(T,dT,n);
-    w = skew(sk_w);
+    w = skew2(sk_w);
 end
 
 function [sk_w,R] = derivHelper(T,dT,n)

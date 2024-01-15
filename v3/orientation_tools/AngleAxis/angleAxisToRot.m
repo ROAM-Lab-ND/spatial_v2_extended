@@ -7,7 +7,7 @@ phi = sqrt(e'*e);
 I = eye(3);
 
 % Rodrigues formula, without having to sorry about divide by zero.
-R = cos(phi)*I + sinc2(phi/2)^2*e*e'/2 + sinc2(phi)*skew(e);
+R = cos(phi)*I + sinc2(phi/2)^2*e*e'/2 + sinc2(phi)*skew2(e);
 
 end
 

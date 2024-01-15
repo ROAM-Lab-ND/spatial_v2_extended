@@ -1,4 +1,4 @@
 function aa = rotToAngleAxis(R)
-aa = skew(logm(R));
+aa = skew2(logm(R));
 end
 

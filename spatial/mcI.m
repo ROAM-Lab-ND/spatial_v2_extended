@@ -26,7 +26,7 @@ function  rbi = mcI_to_rbi( m, c, I )
 
 if length(c) == 3			% spatial
 
-  C = skew(c);
+  C = skew2(c);
   rbi = [ I + m*C*C', m*C; m*C', m*eye(3) ];
 
 else					% planar
@@ -43,7 +43,7 @@ if all(size(rbi)==[6 6])		% spatial
 
   m = rbi(6,6);
   mC = rbi(1:3,4:6);
-  c = skew(mC)/m;
+  c = skew2(mC)/m;
   I = rbi(1:3,1:3) - mC*mC'/m;
 
 else					% planar

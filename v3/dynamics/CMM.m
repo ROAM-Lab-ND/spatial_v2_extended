@@ -34,8 +34,8 @@ for i = model.NB:-1:1
 end
 
 M  = I0(6,6); %Mass
-pG = skew( I0(1:3,4:6)/M ); %CoM position rel. to 0
-X0G = [eye(3) zeros(3) ; skew(pG) eye(3)];
+pG = skew2( I0(1:3,4:6)/M ); %CoM position rel. to 0
+X0G = [eye(3) zeros(3) ; skew2(pG) eye(3)];
 
 for i = 1:model.NB
     p = model.parent(i);

@@ -25,7 +25,7 @@ qd = rand(model.NV,1);
 % Total energy and momentum from EnerMo
 ret = EnerMo( model, q, qd );
 p0G = ret.cm;
-X0G = [eye(3) zeros(3);  skew(p0G) eye(3)];
+X0G = [eye(3) zeros(3);  skew2(p0G) eye(3)];
 hG = X0G'*ret.htot;
 
 checkValue('Centroidal Momentum', hG, Ag2*qd)

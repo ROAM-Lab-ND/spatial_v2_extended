@@ -11,7 +11,7 @@ function [ cayley ] = rotToCayley( R )
 %     cayley = [tan(ang/2) * ax];
 
 I = eye(3);
-cayley = skew((R-I)*inv(I+R));
+cayley = skew2((R-I)*inv(I+R));
 
 end
 

@@ -14,9 +14,9 @@ end
 
 if n == 1
     cc = c'*c;
-    R = ( eye(3)*(1-cc)+2*c*c' + 2*skew(c) ) / (1+cc);
+    R = ( eye(3)*(1-cc)+2*c*c' + 2*skew2(c) ) / (1+cc);
 else
-    R = (eye(3)-skew(-c))^n/(eye(3) + skew(-c))^n;
+    R = (eye(3)-skew2(-c))^n/(eye(3) + skew2(-c))^n;
 end
 
 end

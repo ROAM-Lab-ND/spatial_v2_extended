@@ -50,7 +50,7 @@ function  q = Etoq( E )
 % return value.
 
 tr = trace(E);				% trace is 4*q0^2-1
-v = -skew(E);				% v is 2*q0 * [q1;q2;q3]
+v = -skew2(E);				% v is 2*q0 * [q1;q2;q3]
 
 if tr > 0
   q = [ (tr+1)/2; v ];

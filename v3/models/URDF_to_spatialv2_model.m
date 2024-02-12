@@ -64,6 +64,12 @@ function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
             axis = 'y';
         elseif all( joint.JointAxis == [0 0 1])
             axis = 'z';
+        elseif all( joint.JointAxis == [-1 0 0])
+            axis = 'x-';
+        elseif all( joint.JointAxis == [0 -1 0])
+            axis = 'y-';
+        elseif all( joint.JointAxis == [0 0 -1])
+            axis = 'z-';
         else
             % TODO: support non-axially aligned joints by redefining joint
             % frames

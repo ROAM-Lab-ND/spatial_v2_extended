@@ -1,7 +1,10 @@
-function [model,  robot] = UDRF_to_spatialv2_model(file)
+function [model,  robot] = UDRF_to_spatialv2_model(file, addRandomInertia)
     robot = importrobot(file);
     model = struct();
     model.NB = robot.NumBodies;
+    if nargin == 1
+        addRandomInertia = 0;
+    end
     
     % Loop over bodies to populate spatial_v2 model structure
     for i =1:robot.NumBodies
@@ -72,7 +75,7 @@ function [model,  robot] = UDRF_to_spatialv2_model(file)
         %% Parse inertial properties in URDF
         m = body.Mass;
         % If no mass, then assign random inertial properties.
-        if m == 0
+        if m == 0 && addRandomInertia==1
             fprintf('Body %s has no mass listed in URDF:\n   adding random inertial properties\n', body.Name);
             m = rand();
             body.Mass = m;

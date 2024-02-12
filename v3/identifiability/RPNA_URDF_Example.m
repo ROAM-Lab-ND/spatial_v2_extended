@@ -1,7 +1,7 @@
 clear all; clc;
 
 % Import model via URDF
-model = UDRF_to_spatialv2_model('puma560.urdf');
+model = URDF_to_spatialv2_model('puma560.urdf');
 model.gravity = [0 0 -9.81]';
 
 %% Compute Parameter Nullspace with RPNA

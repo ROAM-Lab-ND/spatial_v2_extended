@@ -1,4 +1,4 @@
-function [model,  robot] = UDRF_to_spatialv2_model(file, addRandomInertia)
+function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
     robot = importrobot(file);
     model = struct();
     model.NB = robot.NumBodies;

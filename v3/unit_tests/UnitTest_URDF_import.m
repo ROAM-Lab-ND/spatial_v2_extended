@@ -1,4 +1,4 @@
-[spatial_v2_model, robotics_toolbox_robot] = UDRF_to_spatialv2_model('puma560_robot.urdf', 1);
+[spatial_v2_model, robotics_toolbox_robot] = URDF_to_spatialv2_model('puma560_robot.urdf', 1);
 q = rand(6,1);
 qd = rand(6,1);
 qdd = rand(6,1);

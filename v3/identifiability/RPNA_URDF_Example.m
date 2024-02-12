@@ -1,44 +1,32 @@
 clear all; clc;
 
+% Import model via URDF
+model = UDRF_to_spatialv2_model('puma560.urdf');
 
-%% Options
-% Uncomment to pick a model
-model = UDRF_to_spatialv2_model('puma560_robot.urdf');
-
-MODEL_MOTORS = 0; % Include motor inertias (1), or ignore them (0)
-FIXED_BASE   = 1; % Treat as fixed base (1), or ignore motion restrictions (0)
-
-%model.gravity = [0 0 0]';
+model.gravity = [0 0 -9.81]';
 num_regressor_samples = 20; % For comparisson to numerical SVD
 
 %% Compute Parameter Nullspace with SVD
 fprintf(1,'\n\n***********************************************\n\n');
 fprintf('Computing Random Regressors\n')
-
-model.has_rotor = zeros(model.NB,1);
 Ystack = ComputeSampledRegressor(model, num_regressor_samples);
 [Uy, Ey, Vy] = svd(Ystack);
-
 params_per_body = 10;
 SVD_Nullspace_Dimension = params_per_body*model.NB - rank(Ystack);
 
 %% Compute Parameter Nullspace with RPNA
-% RangeBasis(1,1);
 param_names = {'m', 'mcx', 'mcy', 'mcz', 'Ixx', 'Iyy', 'Izz', 'Iyz', 'Ixz', 'Ixy'};
 fprintf('Running RPNA\n');
 fprintf(1,'\n===============================\n');
 fprintf(1,'Identifiable Parameter Detail\n');
 
-
-[N, M, V, C] = RPNA(model,~FIXED_BASE);
-%[~, RPNA_Condition] = RangeBasis(1);
+[N, M, V, C] = RPNA(model);
 [Null_Basis, Minimal_Basis, Perp_Basis, Perp_Basis_sym] = ComputeBases(model, N, M);
 
 RPNA_Nullspace_Dimension = 0;
 for i = 1:model.NB
     RPNA_Nullspace_Dimension = RPNA_Nullspace_Dimension + params_per_body-size(N{i},1);
 end
-
 
 %% Compute identifiable linear combinations with rref
 fprintf(1,'===================================\n');
@@ -53,8 +41,6 @@ fprintf('base parameter provide a basis vector for the orthogonal complement to 
 fprintf('the parameter nullspace \\mathcal{N}. Since the choice of a basis for \n')
 fprintf('a vector subspace is not unique, it follows that the choice of base\n'); 
 fprintf('parameters is not unique either\n\n');
-
-
 
 % Create variables for printing parameter regroupings
 sym_params = sym( zeros(params_per_body*model.NB,1) ) ;    
@@ -81,6 +67,7 @@ inds = find(abs(Perp_Basis+1) < 1e-8); % remove small values so printing is clea
 Perp_Basis(inds) = -1;
 Perp_Basis_sym(inds) = -1;
 
+%% Print out parameter regroupings
 regrouping_matrix = sym(zeros(params_per_body*model.NB, params_per_body*model.NB  ));
 for i = 1:size(Perp_Basis_sym,2)
     ind = find(Perp_Basis_sym(:,i)==1,1);
@@ -103,6 +90,7 @@ end
 
 sympref('FloatingPointOutput','default');
 
+%% Final correctness checks
 fprintf(1,'\n===================================\n');
 fprintf(1,'Sanity Checks \n');
 fprintf(1,'===================================\n');

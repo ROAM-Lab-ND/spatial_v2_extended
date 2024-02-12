@@ -35,11 +35,7 @@ else
 end
 SVD_Nullspace_Dimension = params_per_body*model.NB - rank(Ystack);
 
-%RangeBasis(1,1);
-%[~,SVD_Condition] = RangeBasis(Ystack');
-
 %% Compute Parameter Nullspace with RPNA
-% RangeBasis(1,1);
 param_names = {'m', 'mcx', 'mcy', 'mcz', 'Ixx', 'Iyy', 'Izz', 'Iyz', 'Ixz', 'Ixy'};
 fprintf('Running RPNA\n');
 fprintf(1,'\n===============================\n');
@@ -47,12 +43,10 @@ fprintf(1,'Identifiable Parameter Detail\n');
 
 if MODEL_MOTORS
     [N, M, V, C] = RPNA_rotor(model,~FIXED_BASE);
-    %[~, RPNA_Condition] = RangeBasis(1);
     [Null_Basis, Minimal_Basis, Perp_Basis, Perp_Basis_sym] = ComputeBases_rotor(model, N, M);
     PrintParameterSummary_rotor(model, N, M, V,C, param_names);
 else
     [N, M, V, C] = RPNA(model,~FIXED_BASE);
-    %[~, RPNA_Condition] = RangeBasis(1);
     [Null_Basis, Minimal_Basis, Perp_Basis, Perp_Basis_sym] = ComputeBases(model, N, M);
     PrintParameterSummary(model, N, M, V,C, param_names);
 end
@@ -107,6 +101,7 @@ inds = find(abs(Perp_Basis+1) < 1e-8); % remove small values so printing is clea
 Perp_Basis(inds) = -1;
 Perp_Basis_sym(inds) = -1;
 
+%% Print out regroupings
 regrouping_matrix = sym(zeros(params_per_body*model.NB, params_per_body*model.NB  ));
 for i = 1:size(Perp_Basis_sym,2)
     ind = find(Perp_Basis_sym(:,i)==1,1);
@@ -125,6 +120,7 @@ for i = 1:size(Perp_Basis_sym,2)
     fprintf(1,'Regrouped parameter %s <= %s\n', char(sym_params(ind)), char(sym_result));
 end
 
+%% Final correctness checks
 fprintf(1,'\n===================================\n');
 fprintf(1,'Sanity Checks \n');
 fprintf(1,'===================================\n');

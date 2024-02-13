@@ -27,7 +27,3 @@ function checkValue(name, v1, v2, tolerance)
         error('%s is out of tolerance',name);
     end
 end
-
-
-
-

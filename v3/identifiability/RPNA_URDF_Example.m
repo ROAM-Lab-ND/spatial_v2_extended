@@ -1,7 +1,8 @@
 clear all; clc;
 
 % Import model via URDF
-model = URDF_to_spatialv2_model('puma560.urdf');
+floating_base_flag = 0; % Fixed base robot
+model = URDF_to_spatialv2_model('puma560.urdf', floating_base_flag);
 model.gravity = [0 0 -9.81]';
 
 %% Compute Parameter Nullspace with RPNA
@@ -27,10 +28,11 @@ fprintf('the parameter nullspace \\mathcal{N}. Since the choice of a basis for \
 fprintf('a vector subspace is not unique, it follows that the choice of base\n'); 
 fprintf('parameters is not unique either\n\n');
 
-fprintf('Note 3: The URDF defines frames attached to each link and on each side\n')
-fprintf('of each joint. If Joint i connects body i to its parent, then frame i+ \n')
-fprintf('is connected to body i, and i- to its parent. All quanities in spatial_v2 \n')
-fprintf('are in the i+ frames. As such the regrouped parameters are given relative \n')
+fprintf('Note 3: The URDF has a separate link frame at each link CoM and with two frames \n')
+fprintf('implied around each joint. If Joint i connects body i to its parent, then frame i+ \n')
+fprintf('is immediately after the joint and is connected to body i, with i- immediately\n'
+fprintf('before the joint and connected to the parent body. All quanities in spatial_v2 \n')
+fprintf('are given in the i+ frames. As such the regrouped parameters are given relative \n')
 fprintf('to these frames as well.\n\n')
 
 param_names = {'m', 'mcx', 'mcy', 'mcz', 'Ixx', 'Iyy', 'Izz', 'Iyz', 'Ixz', 'Ixy'};

@@ -19,8 +19,8 @@ function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
         %% Parse frame attachment information 
 
         % Frames attached to body i are:
-        %   i+ [frame after joint i]
-        %   i  [URDF Frame i -- not used in spatial_v2]
+        %   i+ [frame after joint i <- main frame used for spatial_v2 computations]
+        %   i  [URDF Frame i at CoM -- not used in spatial_v2]
         %   for each child j, we attach frame j- to body i [just before joint j]
         % 
         % For spatial_v2 we need:
@@ -99,9 +99,9 @@ function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
         I_i = [I_3D m*skew(c) ; -m*skew(c) m*eye(3)];
     
         % Transform inertia to correct frame:
-        %    URDF has a link frame separate from the frame before/after
-        %    each joint. spatial_v2 does not. So, for each body i, we need 
-        %    to convert from [URDF] link i frame data to frame i+ data.
+        %    URDF has a link frame at the link COM that is separate from the 
+        %    frame after each joint. spatial_v2 does not. So, for each body i, 
+        %     we need to convert from [URDF] link i frame data to frame i+ data.
         T_iplus_i = joint.ChildToJointTransform;
         X_i_iplus = AdjointRepresentation( inv(T_iplus_i) );
         model.I{i} = X_i_iplus'*I_i*X_i_iplus;

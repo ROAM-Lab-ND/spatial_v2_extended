@@ -2,12 +2,12 @@ clear all; clc;
 
 % Import model via URDF
 floating_base_flag = 0; % Fixed base robot
-model = URDF_to_spatialv2_model('puma560.urdf', floating_base_flag);
+model = URDF_to_spatialv2_model('puma560.urdf');
 model.gravity = [0 0 -9.81]';
 
 %% Compute Parameter Nullspace with RPNA
 fprintf('Running RPNA\n');
-[N, M, V, C] = RPNA(model);
+[N, M, V, C] = RPNA(model, floating_base_flag);
 [Null_Basis, Minimal_Basis, Perp_Basis, Perp_Basis_sym] = ComputeBases(model, N, M);
 
 % Compute identifiable parameter combinations from the basis for the

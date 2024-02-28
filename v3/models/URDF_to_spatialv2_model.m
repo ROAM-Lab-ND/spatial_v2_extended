@@ -96,7 +96,7 @@ function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
         Ixx = Ivec(1); Iyy =Ivec(2); Izz = Ivec(3);
         Iyz = Ivec(4); Ixz =Ivec(5); Ixy = Ivec(6);
         I_3D = [Ixx Ixy Ixz; Ixy Iyy Iyz; Ixz Iyz Izz];
-        I_i = [I_3D m*skew(c) ; -m*skew(c) m*eye(3)];
+        I_i = [I_3D m*skew2(c) ; -m*skew2(c) m*eye(3)];
     
         % Transform inertia to correct frame:
         %    URDF has a link frame at the link COM that is separate from the 
@@ -124,5 +124,5 @@ end
 function X = AdjointRepresentation(T)
     R = T(1:3,1:3);
     p = T(1:3,4);
-    X = [R zeros(3); skew(p)*R R];
+    X = [R zeros(3); skew2(p)*R R];
 end

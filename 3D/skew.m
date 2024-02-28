@@ -9,6 +9,7 @@ function  out = skew( in )
 % assumed to be v.  skew(A) produces a column-vector result, but skew(v)
 % will accept a row or column vector argument.
 
+warning("skew() function is discarded in this branch to avoid CasADi conflict. You should not call this function. Instead, use skew2");
 if all(size(in)==[3 3])			% do v = skew(A)
   out = 0.5 * [ in(3,2) - in(2,3);
 		in(1,3) - in(3,1);

@@ -50,6 +50,9 @@ switch code
   case 'py'				% planar prismatic Y axis
     Xj = plnr( 0, [0 q] );
     S = [0;0;1];
+  case {'Rx-', 'Ry-','Rz-','Px-','Py-','Pz-','r-','px-','py-'}
+    [Xj, S] = jcalc( jtyp(1:end-1), -q );
+    S = -S;
   case 'Fb'
     S = eye(6);
     Xj = plux( rq(q(1:4)), q(5:7) );

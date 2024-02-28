@@ -7,7 +7,7 @@ else
 end
 
 switch code
-  case {'Rx','Ry','Rz','R','Px','Py','Pz','P','px','py','r','H'}
+  case {'Rx','Ry','Rz','R','Px','Py','Pz','P','px','py','r','H','Rx-','Ry-','Rz-','Px-','Py-','Pz-','px-','py-','r-'}
     nq = 1;
     nv = 1;
   case {'S'} % spherical

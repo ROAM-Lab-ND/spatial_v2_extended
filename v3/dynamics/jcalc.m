@@ -35,9 +35,12 @@ switch code
   case {'P','Pz'}			% prismatic Z axis
     Xj = xlt([0 0 q]);
     S = [0;0;0;0;0;1];
-  case {'S'} % spherical
+    case {'S'} % spherical via quaternion
     Xj = plux( rq(q), [0 0 0]);
     S = [eye(3);zeros(3)];
+    case 'SO3' % spherical via rotation matrix
+    Xj = plux(reshape(q,[3 3]), [0 0 0]);
+    S = [eye(3); zeros(3)];
   case 'H'				% helical (Z axis)
     Xj = rotz(q) * xlt([0 0 q*jtyp.pars.pitch]);
     S = [0;0;1;0;0;jtyp.pars.pitch];

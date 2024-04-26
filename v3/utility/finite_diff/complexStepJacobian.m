@@ -20,7 +20,7 @@ function [J, evals, steps] = complexStepJacobian(f, x, step)
     
     evals = reshape(evals, [size(f0) length(x)]);
     J     = reshape(J, [size(f0) length(x)]);
-    if size(J,2) == 1
+	if size(J,2) == 1
         J = squeeze(J);
-    end
+	end
 end

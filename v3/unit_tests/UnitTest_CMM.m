@@ -19,7 +19,7 @@ q   = normalizeConfVec(model, q);
 qd = rand(model.NV,1);
 
 % Compute CMM with CMM algo
-[Ag] = CMM(model,q);
+[Ag, Agd_qd] = CMM(model,q, qd);
 [Ag2] = CMM_from_CRBA(model,q);
 
 % Total energy and momentum from EnerMo
@@ -38,7 +38,7 @@ Agdot = CMMTimeDerivative(model, q, qd);
 Agdot_finite_difference = real( (Ag_new-Ag) / dt );
 
 checkValue('Centroidal Mom Matrix Time Derivative', Agdot, Agdot_finite_difference)
-
+checkValue('Agdot_qdot', Agd_qd, Agdot*qd)
 
 
 function checkValue(name, v1, v2, tolerance)

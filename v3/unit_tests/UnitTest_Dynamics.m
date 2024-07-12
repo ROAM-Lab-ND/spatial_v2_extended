@@ -1,6 +1,6 @@
 % Unit tests for dynamics functions
 clear
-N = 6;
+N = 8;
 import casadi.*
 
 % Create a random model with N links
@@ -91,12 +91,13 @@ function checkDynamics(model, desc)
     q_new = configurationAddition(model,q,dt*qd);
     %q_new = normalizeConfVec(model, q_new);
     qd_new = qd + dt*qdd;
-    
+
     [H_new, ~] = HandC(model, q_new, qd);
     p_new = H_new*qd_new;
     
     Hdot_finite_difference = real( (H_new-H) / dt );
     pdot_finite_difference = real( (p_new-p) / dt );
+    
     
     checkValue('Hdot', Hdot , Hdot_finite_difference ); % Hdot
     checkValue('pdot', pdot , pdot_finite_difference ); % Hdot
@@ -109,6 +110,17 @@ function checkDynamics(model, desc)
         out = modID(model,q,qd,qdd,lambda);
         checkValue('modID',out, lambda'*tau);
     end
+
+    % Check Jacobian Derivative
+    Xend = rand(4,6);
+    Xend_new = Xend + rand(4,6)*dt*0;
+    Xend_dot = real( (Xend_new - Xend)/dt );
+
+    J = BodyJacobian(model, q, model.NB, Xend);
+    J_new = BodyJacobian(model, q_new, model.NB, Xend_new);
+    Jdot_finite_difference = real( (J_new-J)/dt );
+    Jdot = BodyJacobianTimeDerivative(model, q, qd, model.NB, Xend, Xend_dot);
+    checkValue('Jdot',Jdot, Jdot_finite_difference);
 
     % Check Christoffel
     if  ~any(model.has_rotor) 

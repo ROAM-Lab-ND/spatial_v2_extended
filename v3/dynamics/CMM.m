@@ -1,17 +1,18 @@
-function  [A, info] = CMM( model, q)
+function  [A, Ad_qd] = CMM( model, q, qd)
 
 % Algo from Orin and Goswami (AURO)
-
 assert(~any( model.has_rotor ), 'Rotors not supported for CMM')
-%assert(strcmp(model.jtype(1),'Fb'), 'First joint should be floating base');
-
 
 if ~isfield(model,'nq')
     model = postProcessModel(model);
 end
 
 if ~iscell(q)
-    [q] = confVecToCell(model,q);
+    if nargout == 1
+        [q] = confVecToCell(model,q);
+    else
+        [q, qd] = confVecToCell(model, q, qd);
+    end
 end
 
 
@@ -48,6 +49,13 @@ for i = 1:model.NB
     ii = model.vinds{i};
     A(:,ii) = XiG{i}.'*IC{i}*S{i};
 end
-info.XiG = XiG;
-info.IC = IC;
+%info.XiG = XiG;
+%info.IC = IC;
+
+if nargout == 2
+    model_no_grav = model;
+    model_no_grav.gravity = [0;0;0];
+    [~, info] = ID(model_no_grav, cell2mat(q), cell2mat(qd), 0*cell2mat(qd));
+    Ad_qd = X0G.'*info.f0;
+end
 

@@ -1,8 +1,8 @@
 clear 
-N = 20;
+N = 3;
 
 % Create a random model with N links
-model = autoTree(N, 1.5, pi/3);
+model = autoTree(N, 1, pi/3);
 model.jtype{1} = 'Fb';
 model = postProcessModel(model);
 
@@ -30,6 +30,16 @@ hG = X0G'*ret.htot;
 
 checkValue('Centroidal Momentum', hG, Ag2*qd)
 checkValue('Centroidal Mom Matrix', Ag, Ag2)
+
+ dt = sqrt(eps)*1i;
+q_new = configurationAddition(model,q,dt*qd);
+Ag_new = CMM(model,q_new);
+Agdot = CMMTimeDerivative(model, q, qd);
+Agdot_finite_difference = real( (Ag_new-Ag) / dt );
+
+checkValue('Centroidal Mom Matrix Time Derivative', Agdot, Agdot_finite_difference)
+
+
 
 function checkValue(name, v1, v2, tolerance)
     if nargin == 3

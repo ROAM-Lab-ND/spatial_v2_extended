@@ -58,7 +58,8 @@ end
 
 % This line ensures that ID is symbolic or Casadi compatible
 tau = q{1}(1)*0 + zeros(model.NV,1);
-    
+f0  = zeros(6,1);
+
 for i = model.NB:-1:1
   p = model.parent(i);
   
@@ -66,12 +67,16 @@ for i = model.NB:-1:1
   tau(ii) = S{i}.' * f{i};
   if p ~= 0
         f{p} = f{p} + Xup{i}.'*f{i} ;
+  else
+      f0 = f0+Xup{i}.'*f{i} ;
   end
       
   if model.has_rotor(i) % Modified backward pass
       tau(ii) = tau(ii) + S_rotor{i}' * f_rotor{i};
       if p ~= 0
         f{p} = f{p} + Xup_rotor{i}.'*f_rotor{i};
+      else
+        f0 = f0+Xup_rotor{i}.'*f_rotor{i} ;
       end
   end
 end
@@ -82,3 +87,4 @@ out.h = h;
 out.a = a;
 out.f = f;
 out.tau = tau;
+out.f0 = f0;

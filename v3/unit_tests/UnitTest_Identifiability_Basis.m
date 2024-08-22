@@ -27,15 +27,15 @@ robotics_toolbox_robot.DataFormat = 'column';
 robotics_toolbox_robot.Gravity = [0 0 -9.81]';
 %% load basis results of Panda robot modeled by DH or URDF
 
-% panda basis from RPNA_Examples
-load("panda_basis_from_DH.mat");
-Minimal_Basis_DH = Minimal_Basis;
-Perp_Basis_DH = Perp_Basis;
+% panda basis from DH
+[N1, M1, V1, C1] = RPNA(model_DH, 0);
+[~, Minimal_Basis_DH, Perp_Basis_DH] = ComputeBases(model_DH, N1, M1); % After this step, the perp basis is correct
+Perp_Basis_DH = rref(Perp_Basis_DH')'; % However, if you want to use it to project to minimal parameters, you need this step
 
-% panda basis from RPNA_URDF_Examples
-load("panda_basis_from_URDF.mat");
-Minimal_Basis_URDF = Minimal_Basis;
-Perp_Basis_URDF = Perp_Basis;
+% panda basis from URDF
+[N2, M2, V2, C2] = RPNA(model_URDF, 0);
+[~, Minimal_Basis_URDF, Perp_Basis_URDF] = ComputeBases(model_URDF, N2, M2); % After this step, the perp basis is correct
+Perp_Basis_URDF = rref(Perp_Basis_URDF')'; % However, if you want to use it to project to minimal parameters, you need this step
 
 %% Verification loop
 timeDuration = 2.5;
@@ -68,7 +68,7 @@ for i =0:timeDuration/timeStep
     checkValue('Torque of model from URDF',tau6, tau1, 1e-5);
     
     tau7 = Y_URDF * Minimal_Basis_URDF * Perp_Basis_URDF' *W;
-    % checkValue('Torque of model from URDF with basis',tau7, tau1, 1e-5);
+    checkValue('Torque of model from URDF with basis',tau7, tau1, 1e-5);
 
     currentTime = currentTime + timeStep;
 end

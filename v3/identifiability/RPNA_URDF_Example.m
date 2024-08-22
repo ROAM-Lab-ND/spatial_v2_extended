@@ -13,6 +13,7 @@ fprintf('Running RPNA\n');
 % Compute identifiable parameter combinations from the basis for the
 % subspace perpendicular to the parameter nullspace
 Perp_Basis_sym = rref(Perp_Basis_sym')';
+Perp_Basis = rref(Perp_Basis')';
 
 %% Print out parameter regroupings
 fprintf(1,'===================================\n');

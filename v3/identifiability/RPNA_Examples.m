@@ -3,7 +3,8 @@ clear all; clc;
 
 %% Options
 % Uncomment to pick a model
-model = Puma560_model();      % Industrial robot, 6 DoF
+model = Panda_model();      % Collaborative robot, 7 DoF
+% model = Puma560_model();      % Industrial robot, 6 DoF
 % model = Scara_model();        % Industrial robot, 3 DoF
 % model = CheetahLeg_model();   % Single leg of a quadruped, 3 DoF
 

@@ -2,7 +2,7 @@ clear all; clc;
 
 % Import model via URDF
 floating_base_flag = 0; % Fixed base robot
-model = URDF_to_spatialv2_model('puma560.urdf');
+model = URDF_to_spatialv2_model('panda_arm_no_fixed.urdf');
 model.gravity = [0 0 -9.81]';
 
 %% Compute Parameter Nullspace with RPNA

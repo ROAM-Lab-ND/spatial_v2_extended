@@ -47,6 +47,7 @@ for i =0:timeDuration/timeStep
     qdd = cos(currentTime)*ones(dof,1);
     qd_r = qd;
     disp("===============================================")
+    
     tau1 = inverseDynamics(robotics_toolbox_robot, q, qd, qdd);
     
     [tau2, ~] = ID( model_DH, q, qd, qdd );

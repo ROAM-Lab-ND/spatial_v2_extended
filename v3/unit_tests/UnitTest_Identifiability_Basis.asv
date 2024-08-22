@@ -1,5 +1,3 @@
-%  This is intended to verify the matrices (Minimal_Basis and Perp_Basis)  obtained from 
-% "RPNA_URDF_Examples.m".
 clear;
 clc;
 %%
@@ -27,12 +25,12 @@ robotics_toolbox_robot.DataFormat = 'column';
 robotics_toolbox_robot.Gravity = [0 0 -9.81]';
 %% load basis results of Panda robot modeled by DH or URDF
 
-% panda basis from RPNA_Examples
+% from RPNA_Examples
 load("panda_basis_from_DH.mat");
 Minimal_Basis_DH = Minimal_Basis;
 Perp_Basis_DH = Perp_Basis;
 
-% panda basis from RPNA_URDF_Examples
+% from RPNA_URDF_Examples
 load("panda_basis_from_URDF.mat");
 Minimal_Basis_URDF = Minimal_Basis;
 Perp_Basis_URDF = Perp_Basis;
@@ -46,7 +44,7 @@ for i =0:timeDuration/timeStep
     qd = sin(currentTime)*ones(dof,1);
     qdd = cos(currentTime)*ones(dof,1);
     qd_r = qd;
-    disp("===============================================")
+    
     tau1 = inverseDynamics(robotics_toolbox_robot, q, qd, qdd);
     
     [tau2, ~] = ID( model_DH, q, qd, qdd );
@@ -64,21 +62,9 @@ for i =0:timeDuration/timeStep
 
     [Y_URDF, ~] = RegressorClassical( model_URDF, q, qd,qdd);
     tau6 = Y_URDF*W;
-    checkValue('Torque of model from URDF',tau6, tau1, 1e-5);
+    checkValue('Torque of model from DH with basis',tau5, tau1, 1e-5);
     
     tau7 = Y_URDF * Minimal_Basis_URDF * Perp_Basis_URDF' *W;
-    % checkValue('Torque of model from URDF with basis',tau7, tau1, 1e-5);
 
     currentTime = currentTime + timeStep;
-end
-
-function checkValue(name, v1, v2, tolerance)
-    if nargin == 3
-        tolerance = sqrt(eps);
-    end
-    value = norm(v1(:)-v2(:));
-    fprintf('%s \t %e\n',name,value);
-    if value > tolerance
-        error('%s is out of tolerance',name);
-    end
 end

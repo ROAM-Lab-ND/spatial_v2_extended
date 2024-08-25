@@ -13,6 +13,7 @@ fprintf('Running RPNA\n');
 % Compute identifiable parameter combinations from the basis for the
 % subspace perpendicular to the parameter nullspace
 Perp_Basis_sym = rref(Perp_Basis_sym')';
+Perp_Basis =  rref(Perp_Basis')';
 
 %% Print out parameter regroupings
 fprintf(1,'===================================\n');
@@ -30,7 +31,7 @@ fprintf('parameters is not unique either\n\n');
 
 fprintf('Note 3: The URDF has a separate link frame at each link CoM and with two frames \n')
 fprintf('implied around each joint. If Joint i connects body i to its parent, then frame i+ \n')
-fprintf('is immediately after the joint and is connected to body i, with i- immediately\n'
+fprintf('is immediately after the joint and is connected to body i, with i- immediately\n')
 fprintf('before the joint and connected to the parent body. All quanities in spatial_v2 \n')
 fprintf('are given in the i+ frames. As such the regrouped parameters are given relative \n')
 fprintf('to these frames as well.\n\n')

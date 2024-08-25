@@ -1,10 +1,25 @@
 %  This is intended to verify the matrices (Minimal_Basis and Perp_Basis)  obtained from 
 % "RPNA_URDF_Examples.m".
-clear;
-clc;
-%%
-[model_URDF,  robotics_toolbox_robot] = URDF_to_spatialv2_model("panda_arm_no_fixed.urdf");
+%% load basis results of Panda robot modeled by DH or URDF
 
+% panda basis from RPNA_Examples
+clc; clear;
+RPNA_Examples;
+save('RPNA_Examples_Results.mat','Perp_Basis','Minimal_Basis');
+n1 = norm(Minimal_Basis);
+n2 = norm(Perp_Basis);
+save("norm_DH", 'n1','n2');
+
+% panda basis from RPNA_URDF_Examples
+clc;clear;
+RPNA_URDF_Example
+n3 = norm(Minimal_Basis);
+n4 = norm(Perp_Basis);
+save("norm_URDF", 'n3','n4');
+save('RPNA_URDF_Example_Results.mat','Perp_Basis','Minimal_Basis');
+
+
+[model_URDF,  robotics_toolbox_robot] = URDF_to_spatialv2_model("panda_arm_no_fixed.urdf");
 dof = robotics_toolbox_robot.NumBodies;
 W = cell(dof,1);
 for i = 1:dof
@@ -25,17 +40,16 @@ W = cell2mat(W);
 model_DH = Panda_model(W);
 robotics_toolbox_robot.DataFormat = 'column';
 robotics_toolbox_robot.Gravity = [0 0 -9.81]';
-%% load basis results of Panda robot modeled by DH or URDF
 
-% panda basis from RPNA_Examples
-load("panda_basis_from_DH.mat");
+%%
+load RPNA_Examples_Results.mat
 Minimal_Basis_DH = Minimal_Basis;
 Perp_Basis_DH = Perp_Basis;
 
-% panda basis from RPNA_URDF_Examples
-load("panda_basis_from_URDF.mat");
+load RPNA_URDF_Example_Results.mat
 Minimal_Basis_URDF = Minimal_Basis;
 Perp_Basis_URDF = Perp_Basis;
+
 
 %% Verification loop
 timeDuration = 2.5;

@@ -115,7 +115,7 @@ function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia, remov
         model.I{i} = X_i_iplus'*I_i*X_i_iplus;
     end
 
-    if removeFixedJoints:
+    if removeFixedJoints
         model = remove_fixed_joints(model);
     end
 end

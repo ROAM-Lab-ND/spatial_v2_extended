@@ -1,9 +1,13 @@
-function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
+function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia, removeFixedJoints)
     robot = importrobot(file);
     model = struct();
     model.NB = robot.NumBodies;
     if nargin == 1
         addRandomInertia = 0;
+    end
+
+    if nargin < 3
+        removeFixedJoints = 1;
     end
     
     % Loop over bodies to populate spatial_v2 model structure
@@ -48,10 +52,12 @@ function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
         %% Parse Joint information
 
         % Get joint type
-        if strcmp(joint.Type,'revolute')
+        if strcmp(joint.Type,'revolute') || strcmp(joint.Type,'continuous')
             jtype = 'R';
         elseif strcmp(joint.Type,'prismatic')
             jtype = 'P';
+        elseif strcmp(joint.Type,'fixed')
+            jtype = 'fixed';
         else
             % TODO: Implemented 'fixed' connections
             assert(1==0,'Only revolute and prismatic supported.')
@@ -70,6 +76,8 @@ function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
             axis = 'y-';
         elseif all( joint.JointAxis == [0 0 -1])
             axis = 'z-';
+        elseif strcmp(joint.Type,'fixed')
+            axis = '';
         else
             % TODO: support non-axially aligned joints by redefining joint
             % frames
@@ -105,6 +113,10 @@ function [model,  robot] = URDF_to_spatialv2_model(file, addRandomInertia)
         T_iplus_i = joint.ChildToJointTransform;
         X_i_iplus = AdjointRepresentation( inv(T_iplus_i) );
         model.I{i} = X_i_iplus'*I_i*X_i_iplus;
+    end
+
+    if removeFixedJoints:
+        model = remove_fixed_joints(model);
     end
 end
 

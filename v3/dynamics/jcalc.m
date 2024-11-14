@@ -65,6 +65,9 @@ switch code
     R = T(1:3,1:3);
     p = T(1:3,4);
     Xj = [R zeros(3); skew(p)*R R];
+  case 'fixed'
+    Xj = eye(6);
+    S = [0;0;0;0;0;0]; 
   otherwise
     error( 'unrecognised joint code ''%s''', code );
 end

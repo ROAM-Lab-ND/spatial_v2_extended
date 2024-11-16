@@ -64,7 +64,7 @@ function [Null_Basis, Minimal_Basis, Perp_Basis, Perp_Basis_sym] = ComputeBases(
         
         % Set entries close to 0,1,-1 to 0,1,-1 so that the symbolic output
         % will be clean at the end.
-        NN = CleanMat( rref(N{i})' );
+        NN = CleanMat( rref( CleanMat(N{i}) )' );
         
         Perp_Basis(i_inds, perp_inds{i} )     = NN;
         Perp_Basis_sym(i_inds, perp_inds{i} ) = NN; 
